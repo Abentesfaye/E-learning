@@ -1,0 +1,244 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;   
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding-top: 30px;
+}
+
+header {
+    color: #141414;
+    padding: 5px 0;
+}
+.logo {
+    margin-right: auto;
+    padding-left: 10%;
+}
+.btns{
+    margin-left: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding-right: 10%;
+
+}
+.logo img {
+    max-height: 80px;
+    border-radius: 30px;
+}
+nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+}
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+nav ul li {
+    margin-right: 30px;  
+}
+
+nav a {
+    font-weight: 700;
+    text-decoration: none;
+    color: #000000;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #31a6c4;
+}
+
+.cta {
+    margin-left: 20px;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2ecc71;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #116333;
+}
+
+.user-account {
+    margin-left: auto;
+}
+
+.account-link {
+    text-decoration: none;
+    color: #000000;
+    font-weight: 700;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.account-link:hover {
+    color: #3d8ca0;
+}
+.hero_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; 
+}
+.hero_container .left{
+    padding-right: 100px;
+}
+.hero-content span {
+    font-weight: bolder;
+    font-size: 40px;
+    color: rgba(38, 131, 218, 0.911);
+}
+.hero h1 {
+    color: #222222;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    text-transform: capitalize;
+}
+
+
+.hero p {
+    font-size: 15px;
+    margin-bottom: 30px;
+    text-align: justify;
+   
+}
+
+/* Adjust the button styles if necessary */
+.hero .button {
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: #2ecc71;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.hero .button:hover {
+    background-color: #27ae60;
+}
+.main {
+    margin-top: 50px;
+    justify-content:space-around;
+}
+.main img {
+    width: 60px;
+}
+.aboutUS {
+  display: flex;
+  flex-direction: row;
+   padding: 50px;
+   justify-content: space-between;
+}
+.pic, text{
+    width: 47%;
+}
+.pic img{
+    padding-right: 100px;
+    border-radius: 50px;
+}
+.about h1{
+    margin-top: 50px;
+    font-size: 700;
+    color: green;
+    font-weight: bolder;
+    text-align: center;
+}
+.about p{
+text-align: justify;
+margin-left: 50px;
+}
+.why-elearning h2{
+    text-align: center;
+    font-size: 700;
+    font-weight: bolder;
+    color: green;
+}
+.containerE{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+.etext{
+    margin-left: 50px;
+    margin-right: 50px;
+}
+.etext p{
+    text-align: justify;
+    font-size: 16px;
+    font-weight: 500;
+}
+.etext li{
+    list-style-type: square;
+    text-align: justify;
+}
+.etext span {
+    font-size: 17px;
+    font-weight: 600;
+    color: green;
+}
+.eimg img {
+    width: 600px;
+    margin-right: 50px;
+    border-radius: 50px;
+}
+.courses {
+    display: flex;
+    flex-direction: column;
+    margin: 50px;
+}
+.course-item {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid;
+    border-radius: 15px  15px 0 0 ;
+    width: 23%;
+}
+.banner img {
+    width: 100%;
+    border-radius: 14px  14px 0 0 ;
+}
+.catagory {
+    display: flex;
+    flex-direction: row;
+}
+.cata {
+    width: 50%;
+   margin: 0%;
+}
+.cata p {
+    text-align: center;
+    border-radius: 15px;
+    background-color: #c90ebf;
+    font-size: 10px;
+}
+.reting{
+    margin-lefr: auto;
+}
