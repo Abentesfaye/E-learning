@@ -68,7 +68,7 @@ if (isset($_SESSION['errorMsg'])) {
           </div>
           <button type="submit" class="signup-button">Sign Up</button>
       </form>
-      <a href="index.html" class="login-link">Already have an account? Login here</a>
+      <a href="index.php" class="login-link">Already have an account? Login here</a>
   </div>
 
   <!-- Add the notification element -->
