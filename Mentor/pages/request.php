@@ -1,3 +1,15 @@
+<?php
+session_start();
+include("../includes/notification.php");
+
+// Check if there is an error message in the session
+if (isset($_SESSION['errorMsg'])) {
+    $errorMsg = $_SESSION['errorMsg'];
+    showNotification($errorMsg);
+    // Clear the error message from the session to prevent displaying it multiple times
+    unset($_SESSION['errorMsg']);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +25,7 @@
 <div class="mentor-form">
     <img src="../../assets/logo/logo.png" alt="Mentor Logo" class="logo">
     <h2> Become A  Mentor <br> Request Form</h2>
-    <form action="#" method="post"> 
+    <form action="../serverSide/requestMentor.php" method="POST" enctype="multipart/form-data"> 
         <div class="form-group">
             <label for="firstName">First Name</label>
             <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required>
@@ -33,14 +45,6 @@
         <div class="form-group">
             <label for="photo">Photo</label>
             <input type="file" id="photo" name="photo" accept="image/*" required>
-        </div>
-        <div class="form-group">
-            <label for="education">Education Information</label>
-            <textarea id="education" name="education" placeholder="Enter your education information" required></textarea>
-        </div>
-        <div class="form-group">
-            <label for="interests">Interests</label>
-            <input type="text" id="interests" name="interests" placeholder="Enter your interests" required>
         </div>
         <div class="form-group">
             <label for="educationDoc">Upload Education Document</label>

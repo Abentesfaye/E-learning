@@ -16,14 +16,14 @@ if (isset($_SESSION['errorMsg'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./style/signup.css">
-    <link rel="icon" type="logo" href="../logo/logo.png" />
+    <link rel="icon" type="logo" href="../assets/logo/logo.png" />
     <link rel="stylesheet" href="./style/style.css">
    <link rel="stylesheet" href="../font.css">
     <title>Signup - Mettu University E-Learning</title>
 </head>
 <body>
   <div class="signup-container">
-      <img src="../logo/logo.png" alt="Mettu University Logo">
+      <img src="../assets/logo/logo.png" alt="Mettu University Logo">
       <h2>Signup and Start Learning</h2>
       <form class="signup-form" action="./serverSide/signup.php" method="post">
           <div class="form-group">
