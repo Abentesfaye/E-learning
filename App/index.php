@@ -17,16 +17,13 @@ if (isset($_SESSION['errorMsg'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="../logo/logo.png" href="../logo/logo.png" />
     <link rel="stylesheet" href="./style/style.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Mina&family=Poppins:ital,wght@0,100;0,400;0,500;0,600;0,700;0,800;1,100;1,500;1,600;1,800&family=Whisper&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="../font.css">
     <title>Login - Mettu University E-Learning</title>
       
 </head>
 <body>
     <div class="login-container">
-      <img src="../logo/logo.png" alt="Mettu University Logo"> <!-- Replace "your-logo.png" with your actual logo -->
+      <img src="../logo/logo.png" alt="Mettu University Logo">
       <h2>Welcome to Mettu University E-Learning Center</h2>
       <p>Login</p>
       <form class="login-form" action="./serverSide/login.php" method="post">

@@ -16,24 +16,15 @@ if (isset($_SESSION['errorMsg'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./style/signup.css">
-    <link rel="icon" type="../logo/logo.png" href="../logo/logo.png" />
+    <link rel="icon" type="logo" href="../logo/logo.png" />
     <link rel="stylesheet" href="./style/style.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Mina&family=Poppins:ital,wght@0,100;0,400;0,500;0,600;0,700;0,800;1,100;1,500;1,600;1,800&family=Whisper&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="../font.css">
     <title>Signup - Mettu University E-Learning</title>
 </head>
 <body>
   <div class="signup-container">
       <img src="../logo/logo.png" alt="Mettu University Logo">
       <h2>Signup and Start Learning</h2>
-
-      <!-- Display the error message if it exists -->
-      <?php if (!empty($errorMsg)): ?>
-          <div id="notification" class="notification"><?php echo $errorMsg; ?></div>
-      <?php endif; ?>
-
       <form class="signup-form" action="./serverSide/signup.php" method="post">
           <div class="form-group">
               <label for="firstName">First Name</label>
