@@ -20,7 +20,7 @@
             }
         });
 
-        function isValidPhoneNumber(phoneNumber) {
+function isValidPhoneNumber(phoneNumber) {
 //  a valid Ethiopian phone number starts with +251 or 09, followed by 9 digits
 const phoneRegex = /^(?:\+251|09)\d{8}$/;
 return phoneRegex.test(phoneNumber);

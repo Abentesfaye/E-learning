@@ -1,9 +1,11 @@
 <?php
+include("./includes/notification.php");
 session_start();
 
 // Check if there is an error message in the session
 if (isset($_SESSION['errorMsg'])) {
     $errorMsg = $_SESSION['errorMsg'];
+    showNotification($errorMsg);
     // Clear the error message from the session to prevent displaying it multiple times
     unset($_SESSION['errorMsg']);
 }
@@ -21,19 +23,6 @@ if (isset($_SESSION['errorMsg'])) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Mina&family=Poppins:ital,wght@0,100;0,400;0,500;0,600;0,700;0,800;1,100;1,500;1,600;1,800&family=Whisper&display=swap" rel="stylesheet">
     <title>Signup - Mettu University E-Learning</title>
-    <style>
-        /* Add custom notification styles here */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px;
-            background-color: #e74c3c; /* Red color */
-            color: #fff;
-            border-radius: 5px;
-            display: none;
-        }
-    </style>
 </head>
 <body>
   <div class="signup-container">
@@ -74,27 +63,5 @@ if (isset($_SESSION['errorMsg'])) {
   <!-- Add the notification element -->
   <div id="notification" class="notification"></div>
   <script src="./script/signupValidation.js"></script>
-  <script>
-          document.addEventListener("DOMContentLoaded", function () {
-              const notification = document.getElementById('notification');
-              const errorMsg = '<?php echo $errorMsg; ?>';
-
-              if (errorMsg) {
-                  showNotification(errorMsg);
-              }
-
-              function showNotification(message) {
-                  // Show the notification
-                  notification.innerText = message;
-                  notification.style.display = 'block';
-
-                  // Hide the notification after 3 seconds
-                  setTimeout(function () {
-                      notification.style.display = 'none';
-                  }, 3000);
-              }
-          });
-      </script>
-
 </body>
 </html>

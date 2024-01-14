@@ -74,4 +74,13 @@
             margin-top: 10px;
             display: inline-block;
         }
-   
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px;
+            background-color: #e74c3c; /* Red color */
+            color: #fff;
+            border-radius: 5px;
+            display: none;
+        }
