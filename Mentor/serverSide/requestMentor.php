@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Upload education document file
-    $educationDocPath = uploadFile('educationDoc', '../../mentorData/photos/');
+    $educationDocPath = uploadFile('educationDoc', '../../mentorData/documents/');
     if (!$educationDocPath) {
         
         $_SESSION['errorMsg'] = "Failed to upload education document.";
@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Upload ID proof file
-    $idProofPath = uploadFile('idProof', '../../mentorData/photos/');
+    $idProofPath = uploadFile('idProof', '../../mentorData/idproof/');
     if (!$idProofPath) {
         
         $_SESSION['errorMsg'] = "Failed to upload ID proof.";

@@ -29,7 +29,7 @@
             <button type="submit" class="login-button">Login</button>
         </form>
         <a href="#" class="forgot-password">Forgot Password?</a> <br>
-        <a href="#" class="become-mentor">Want to become a mentor? Request Admin</a>
+        <a href="./pages/request.php" class="become-mentor">Want to become a mentor? Request Admin</a>
     </div>
 </div>
 
