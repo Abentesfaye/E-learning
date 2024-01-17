@@ -1,3 +1,15 @@
+<?php
+include("./includes/notification.php");
+session_start();
+
+// Check if there is an error message in the session
+if (isset($_SESSION['errorMsg'])) {
+    $errorMsg = $_SESSION['errorMsg'];
+    showNotification($errorMsg);
+    // Clear the error message from the session to prevent displaying it multiple times
+    unset($_SESSION['errorMsg']);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,13 +117,13 @@
 
 <div class="main">
     <div class="banner">
-        <img src="../assets/logo/logo.png" alt="Mettu University Logo"> <!-- Replace with your actual logo -->
-        <h1>METTU UNIVERSITY E-LEARNING PLATFORM<br>Mentors Portal</h1>
+        <img src="../assets/logo/logo.png" alt="Mettu University Logo"> 
+        <h1>METTU UNIVERSITY E-LEARNING PLATFORM<br>Admin's Portal</h1>
     </div>
 
     <div class="container">
-        <h2>Mentor Login</h2>
-        <form action="#" method="post"> <!-- Replace "#" with your actual form action -->
+        <h2>Admin Login</h2>
+        <form action="./serverSide/login.php" method="post">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" placeholder="Enter your username" required>
@@ -122,10 +134,8 @@
             </div>
             <button type="submit" class="login-button">Login</button>
         </form>
-        <a href="#" class="forgot-password">Forgot Password?</a> <br>
-        <a href="#" class="become-mentor">Want to become a mentor? Request Admin</a>
     </div>
 </div>
-
+<div id="notification" class="notification"></div>
 </body>
 </html>
