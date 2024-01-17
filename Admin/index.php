@@ -9,6 +9,9 @@ if (isset($_SESSION['errorMsg'])) {
     // Clear the error message from the session to prevent displaying it multiple times
     unset($_SESSION['errorMsg']);
 }
+if (isset($_SESSION['adminID'])) {
+    header('location: ./pages/dashboard.php');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

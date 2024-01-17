@@ -21,13 +21,13 @@
 			<span class="text">AdminHub</span>
 		</a>
 		<ul class="side-menu top">
-			<li class="active">
+			<li >
 				<a href="#">
 					<i class='bx bxs-dashboard' ></i>
 					<span class="text">Dashboard</span>
 				</a>
 			</li>
-			<li>
+			<li class="active">
 				<a href="./manageMentor.php">
 					<i class='bx bxs-shopping-bag-alt' ></i>
 					<span class="text">Manage Mentor</span>
