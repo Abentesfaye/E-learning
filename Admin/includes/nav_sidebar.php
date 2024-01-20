@@ -33,7 +33,7 @@ $activePage = isset($_SESSION['activePage']) ? $_SESSION['activePage'] : '';
                     <span class='text'>Create Class</span>
                 </a>
             </li>
-            <li class='<?php echo ($activePage === 'createClass') ? 'active' : ''; ?>'>
+            <li class='<?php echo ($activePage === 'createCourse') ? 'active' : ''; ?>'>
                 <a href='./createCourse.php' >
                     <i class='bx bxs-shopping-bag-alt' ></i>
                     <span class='text'>Create Course</span>
