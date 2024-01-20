@@ -34,3 +34,17 @@ CREATE TABLE admin (
     password VARCHAR(255) NOT NULL,
     profilepicture VARCHAR(255) -- Adjust the data type as needed
 );
+CREATE TABLE department (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    department_name VARCHAR(255)
+);
+CREATE TABLE class (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    class_name VARCHAR(255),
+    department_id int
+);
+CREATE TABLE course (
+    id int PRIMARY KEY AUTO_INCREMENT,
+    course_name VARCHAR(255),
+    class_id int
+);

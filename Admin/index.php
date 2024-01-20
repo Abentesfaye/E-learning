@@ -139,6 +139,6 @@ if (isset($_SESSION['adminID'])) {
         </form>
     </div>
 </div>
-<div id="notification" class="notification"></div>
+<div id="notificationtext" class="notificationtext"></div>   
 </body>
 </html>
