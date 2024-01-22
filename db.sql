@@ -48,3 +48,8 @@ CREATE TABLE course (
     course_name VARCHAR(255),
     class_id int
 );
+CREATE TABLE AssignedCourse (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    course_id INT,
+    mentor_id INT
+);

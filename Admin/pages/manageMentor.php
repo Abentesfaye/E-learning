@@ -1,14 +1,28 @@
 <?php
+include("../includes/conn.php"); 
+include("../includes/notification.php");
+
 session_start(); // Ensure session is started
 // Set the active page variable
 $activePage = "manageMentor";
 $_SESSION['activePage'] = $activePage;
-
-include("../includes/conn.php");
-include("../includes/notification.php");
-
+if (isset($_SESSION['errorMsg'])) {
+    $errorMsg = $_SESSION['errorMsg'];
+    showNotification($errorMsg);
+    // Clear the error message from the session to prevent displaying it multiple times
+    unset($_SESSION['errorMsg']);
+}
+if (isset($_SESSION['successMsg'])) {
+    $successMsg = $_SESSION['successMsg'];
+    showGoodNotification($successMsg);
+    // Clear the error message from the session to prevent displaying it multiple times
+    unset($_SESSION['successMsg']);
+}
+if (!isset($_SESSION['adminID'])) {
+    header('location: ../index.php');
+}
 // SQL query to select data from mentors table and sort by status
-$sql = "SELECT * FROM mentors ORDER BY FIELD(status, 'pending', 'rejected', 'active')";
+$sql = "SELECT * FROM mentors ORDER BY FIELD(status, 'pending', 'active', 'rejected')";
 $result = $conn->query($sql);
 
 // Close the database connection
@@ -104,10 +118,11 @@ $conn->close();
                                     <a href='mentorDetail.php?mentorId=<?php echo $mentorId; ?>' target='_blank' class='btn btn-primary'>Manage</a>
                                     <!-- Assign button with data-toggle for the modal -->
                                     <button type="button" class="btn <?php echo $buttonClass; ?> mt-1"
-                                            data-toggle="modal" data-target="#assignModal<?php echo $mentorId; ?>"
-                                            onclick="handleAssignClick('<?php echo $status; ?>', '<?php echo $modalMessage; ?>')">
-                                        Assign
-                                    </button>
+                                        data-toggle="modal" data-target="#assignModal<?php echo $mentorId; ?>"
+                                        onclick="handleAssignClick('<?php echo $mentorId; ?>', '<?php echo $status; ?>', '<?php echo $modalMessage; ?>')">
+                                    Assign
+                                </button>
+
                                 </td>
                             </tr>
                             <?php
@@ -120,25 +135,25 @@ $conn->close();
             </table>
         </div>
     </main>
-
+    </section>
+    <div id="notificationtext" class="notificationtext"></div>           
     <!-- Include Bootstrap JS -->
     <script src="../../bootstrap/js/bootstrap.min.js"></script>
     <script src="../js/script.js"></script>
   
     
     <script>
-        function handleAssignClick(status, message) {
-            if(status !== 'active'){
-                alert('Error: ' + message);
-               
-            }
-            
+        function handleAssignClick(mentorId, status, message) {
+    if (status !== 'active') {
+        alert('Error: ' + message);
+    }
 
-            if (status === 'active') {
-                // Add logic to open a new window or perform other actions
-                window.open('mentor_add.php?mentorId=<?php echo $mentorId; ?>');
-            }
-        }
+    if (status === 'active') {
+        // Add logic to open a new window or perform other actions
+        window.open('mentor_add.php?mentorId=' + mentorId);
+    }
+}
+
     </script>
 </body>
 </html>
