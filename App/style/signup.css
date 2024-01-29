@@ -51,7 +51,14 @@
             border-radius: 4px;
             font-size: 14px;
         }
-
+        .stream {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
         .signup-button {
             background-color: #27ae60; /* Darker green button color */
             color: #fff;
