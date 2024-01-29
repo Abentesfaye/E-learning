@@ -46,6 +46,14 @@ if (isset($_SESSION['errorMsg'])) {
               <label for="confirmPassword">Confirm Password</label>
               <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
           </div>
+          <div class="form-group">
+                 <label for="stream">Stream</label>
+                 <select name="Stream" id="stream">
+                    <option value="Gnr" >General(9-10)</option>
+                    <option value="scoial">Scoial</option>
+                    <option value="Natural" selected>Natural</option>
+                 </select>
+          </div>
           <button type="submit" class="signup-button">Sign Up</button>
       </form>
       <a href="index.php" class="login-link">Already have an account? Login here</a>
