@@ -1,6 +1,7 @@
 <?php
 // Set the active page variable
 $activePage = isset($_SESSION['activePage']) ? $_SESSION['activePage'] : '';
+$nextPage = isset($_SESSION['next']) ? $_SESSION['next'] : '';
 ?>
 <div class="head-title">
     <div class="left">
@@ -11,7 +12,10 @@ $activePage = isset($_SESSION['activePage']) ? $_SESSION['activePage'] : '';
             </li>
             <li><i class='bx bx-chevron-right' ></i></li>
             <li>
-                <a class="active" href="<?php echo $activePage . '.php'; ?>"><?php echo $activePage; ?></a>
+                <a class="active text-decoration-underline" href="<?php echo $activePage . '.php'; ?>" ><?php echo $activePage; ?></a>
+            </li>
+            <li>
+                <a class="active text-success" href="<?php echo $nextPage . '.php'; ?>"><?php echo $nextPage; ?></a>
             </li>
         </ul>
     </div>

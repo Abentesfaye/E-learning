@@ -52,9 +52,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // User not found
          // Set error message and redirect
+         $errorMsg = "Invalid Username or Password.";
     $_SESSION['errorMsg'] = $errorMsg;
     header("Location: ../index.php");
-        $errorMsg = "Invalid Username or Password.";
+       
     }
 
    

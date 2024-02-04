@@ -53,3 +53,13 @@ CREATE TABLE AssignedCourse (
     course_id INT,
     mentor_id INT
 );
+CREATE TABLE chapters (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT,
+    chapter_name VARCHAR(255),
+);
+CREATE TABLE topics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    chapter_id INT,
+    topic_name VARCHAR(255)
+);

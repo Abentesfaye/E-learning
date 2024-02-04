@@ -3,6 +3,8 @@ session_start();
 include("../includes/conn.php");
 include("../includes/notification.php");
 $activePage = "createCourse";
+$secondPage ="ManageCourse";
+$_SESSION['next'] = $secondPage;
 $_SESSION['activePage'] = $activePage;
 // Check if there is an error message in the session
 if (isset($_SESSION['errorMsg'])) {
