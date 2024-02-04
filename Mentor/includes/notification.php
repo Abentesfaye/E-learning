@@ -96,7 +96,7 @@ function showGoodNotification($successMsg)
                     // Hide the notification after 5 seconds
                     setTimeout(function () {
                         notificationtext.style.display = "none";
-                    }, 3000);
+                    }, 5000);
                 }
             });
         </script>';

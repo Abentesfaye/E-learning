@@ -21,35 +21,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // User with the provided username exists, fetch user details
         $checkStmt->bind_result($mentor_id, $hashedPassword);
         $checkStmt->fetch();
-    
+
         // Verify the password
-        if (password_verify($password, $hashedPassword)) { //tring to verify hashed password but not comparing it well
-            // Password is correct, proceed to the dashboard
-            $_SESSION["mentorID"] = $mentor_id;
-            $successMsg = "Login Success!";
-            $_SESSION['successMsg'] = $successMsg;
-            header("Location: ../pages/dashboard.php");
-            exit();
-        } elseif (strlen($hashedPassword) === 8) {
-            // Password is temporary, redirect to complete profile page
-            $_SESSION["mentorID"] = $mentor_id;
-            $errorMsg = 'Please complete your profile to access your dashboard';
-            $_SESSION['errorMsg'] = $errorMsg;
-            header('Location: ../pages/completeProfile.php');
-            exit();
-        } else {
-            // Incorrect password
-            $_SESSION['errorMsg'] = "Invalid username or password.";
-            header("Location: ../index.php");
-            exit();
+        if (password_needs_rehash($hashedPassword, PASSWORD_BCRYPT)){
+            if ($password === $hashedPassword) {
+                $_SESSION["mentorID"] = $mentor_id;
+                $errorMsg = 'Please complete your profile to access your dashboard';
+                $_SESSION["errorMsg"] = $errorMsg;
+                header('Location: ../pages/completeProfile.php');
+                exit();
+            } else {
+                $errorMsg = "invalid Username or Password";
+                $_SESSION["errorMsg"] = $errorMsg;
+                header("location: ../index.php");
+            }
         }
+
+        elseif (password_verify($password, $hashedPassword)) {
+                     // Password is correct, proceed to the dashboard
+                  $_SESSION["mentorID"] = $mentor_id;
+                  $successMsg = "Login Success!";
+                  $_SESSION['successMsg'] = $successMsg;
+                  header("Location: ../pages/dashboard.php");
+            } else {
+                $errorMsg = "Invalid Username or Password";
+                $_SESSION["errorMsg"] = $errorMsg;
+                header("location: ../index.php");
+                exit();
+            }
     } else {
         // User not found
-        $_SESSION['errorMsg'] = "User not found.";
-        header("Location: ../index.php");
-        exit();
+         // Set error message and redirect
+    $_SESSION['errorMsg'] = $errorMsg;
+    header("Location: ../index.php");
+        $errorMsg = "Invalid Username or Password.";
     }
-}    
+
+   
+    exit();
+}
 
 // Close the connection
 $conn->close();
