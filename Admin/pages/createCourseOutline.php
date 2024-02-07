@@ -1,12 +1,24 @@
 <?php
+// Include necessary files and start the session
 include("../includes/conn.php");
 include("../includes/notification.php");
 session_start(); 
-// Get course ID from the URL
-$courseId = $_GET['course_id'];
+
+// Initialize $courseId variable
+$courseId = null;
+
+// Check if course_id is set in the URL
+if (isset($_GET['course_id'])) {
+    // Assign the course_id value to $courseId
+    $courseId = $_GET['course_id'];
+} else {
+    // Handle case where course_id is not set in the URL
+    $_SESSION["errorMsg"] = "Course not Found";
+    header("location: manageCourse.php");
+    exit(); // Stop further execution
+}
 
 // Check if error or success message exists in session and display them
-
 if (isset($_SESSION['errorMsg'])) {
     $errorMsg = $_SESSION['errorMsg'];
     showNotification($errorMsg);
@@ -25,10 +37,10 @@ if (!isset($_SESSION['adminID'])) {
 
 // Retrieve course details
 $queryCourse = "SELECT c.id, c.course_name, d.department_name, cl.class_name 
-FROM course c
-INNER JOIN class cl ON c.class_id = cl.id
-INNER JOIN department d ON cl.department_id = d.id
-WHERE c.id = ?";
+                FROM course c
+                INNER JOIN class cl ON c.class_id = cl.id
+                INNER JOIN department d ON cl.department_id = d.id
+                WHERE c.id = ?";
 
 $stmtCourse = $conn->prepare($queryCourse);
 $stmtCourse->bind_param("i", $courseId);
@@ -45,14 +57,16 @@ if ($resultCourse->num_rows > 0) {
     }
 } else {
     // Handle case where no course is found for the provided ID
-    echo "Course not found";
+    $_SESSION["errorMsg"] = "Course not found";
+    header("location: manageCourse.php");
+
 }
 
 // Retrieve assigned mentors
 $queryMentors = "SELECT m.first_name, m.last_name
-FROM mentors m
-INNER JOIN assignedcourse a ON m.mentor_id = a.mentor_id
-WHERE a.course_id = ?";
+                FROM mentors m
+                INNER JOIN assignedcourse a ON m.mentor_id = a.mentor_id
+                WHERE a.course_id = ?";
 
 $stmtMentors = $conn->prepare($queryMentors);
 $stmtMentors->bind_param("i", $courseId);
@@ -60,7 +74,7 @@ $stmtMentors->execute();
 $resultMentors = $stmtMentors->get_result();
 
 // Retrieve chapters for the course
-$queryChapters = "SELECT id, chapter_name FROM chapters WHERE course_id = ?";
+$queryChapters = "SELECT id, chapter_name, chapter_number, description FROM chapters WHERE course_id = ?";
 $stmtChapters = $conn->prepare($queryChapters);
 $stmtChapters->bind_param("i", $courseId);
 $stmtChapters->execute();
@@ -93,63 +107,89 @@ $resultChapters = $stmtChapters->get_result();
 <body>
 <?php include("../includes/nav_sidebar.php"); ?>
 <main>
-        <?php include("../includes/pageHeader.php"); ?>
-<div class="container">
-    <h2 class="text-center">Course Details</h2>
-    <div class="border mt-5 pl-5">
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <div class="">
-                    <p>Course ID: <?php echo $courseId; ?></p>
-                    <p>Course Name: <?php echo $courseName; ?></p>
-                    <p>Class: <?php echo $className; ?></p>
-                    <p>Department: <?php echo $departmentName; ?></p>
+    <?php include("../includes/pageHeader.php"); ?>
+    <div class="container">
+        <h2 class="text-center">Course Details</h2>
+        <div class="border mt-5 pl-5">
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="">
+                        <p>Course ID: <?php echo $courseId; ?></p>
+                        <p>Course Name: <?php echo $courseName; ?></p>
+                        <p>Class: <?php echo $className; ?></p>
+                        <p>Department: <?php echo $departmentName; ?></p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="">
-                    <h4 class="text-center">Assigned Mentors</h4>
-                    <p class="text-center">
-                        <?php
-                        if ($resultMentors->num_rows > 0) {
-                            while ($rowMentors = $resultMentors->fetch_assoc()) {
-                                $mentorFirstName = $rowMentors['first_name'];
-                                $mentorLastName = $rowMentors['last_name'];
-                                echo "<p class='text-center'> $mentorFirstName $mentorLastName</p>";
+                <div class="col-md-6">
+                    <div class="">
+                        <h4 class="text-center">Assigned Mentors</h4>
+                        <p class="text-center">
+                            <?php
+                            if ($resultMentors->num_rows > 0) {
+                                while ($rowMentors = $resultMentors->fetch_assoc()) {
+                                    $mentorFirstName = $rowMentors['first_name'];
+                                    $mentorLastName = $rowMentors['last_name'];
+                                    echo "<p class='text-center'> $mentorFirstName $mentorLastName</p>";
+                                }
+                            } else {
+                                echo "<p>No Mentor Assigned</p>";
                             }
-                        } else {
-                            echo "<p>No Mentor Assigned</p>";
-                        }
-                        ?>
-                    </p>
+                            ?>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row mt-5">
-        <div class="col-md-6">
-            <form id="actionForm">
-                <label>Select Action:</label>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" onclick="openModal('#addChapterModal')">
-                        Create Chapter
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="openModal('#addTopicModal')">
-                        Add Topic
-                    </button>
-                </div>
-                <br>
-               
-        </div>
-        <div class="col-md-6 border">
-        <label for="chapter_id" class="mt-2">Existing Chapters:</label>
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <form id="actionForm">
+                    <label>Select Action:</label>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" onclick="openModal('#addChapterModal')">
+                            Create Chapter
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="openModal('#addTopicModal')">
+                            Add Topic
+                        </button>
+                       <button class="btn btn-primary"><a href="../serverSide/pdf.php?courseId=<?php echo $courseId; ?>" class="text-white">Download Course Outline</a></button>
+
+                    </div>
+                    <br>
+            </div>
+            <div class="col-md-6 border">
+            
+                <label for="chapter_id" class="mt-2 text-center">Course Outline:</label>
+                
                 <div id="existingChapters">
                     <?php
                     if ($resultChapters->num_rows > 0) {
                         echo "<ul>";
                         while ($rowChapters = $resultChapters->fetch_assoc()) {
+                            $chapterId = $rowChapters['id'];
                             $chapterName = $rowChapters['chapter_name'];
-                            echo "<li>$chapterName</li>";
+                            $chapterNumber = $rowChapters['chapter_number'];
+                            $description = $rowChapters['description'];
+                            echo "<li><b>Chapter $chapterNumber:</b> $chapterName - $description<br>";
+                            
+                            // Fetch topics for the current chapter
+                            $queryTopics = "SELECT id, topic_name FROM topics WHERE chapter_id = ?";
+                            $stmtTopics = $conn->prepare($queryTopics);
+                            $stmtTopics->bind_param("i", $chapterId);
+                            $stmtTopics->execute();
+                            $resultTopics = $stmtTopics->get_result();
+
+                            if ($resultTopics->num_rows > 0) {
+                                echo "<ul>";
+                                while ($rowTopics = $resultTopics->fetch_assoc()) {
+                                    $topicName = $rowTopics['topic_name'];
+                                    echo "<li>$topicName</li>";
+                                }
+                                echo "</ul>";
+                            } else {
+                                echo "<ul><li>No topics available</li></ul>";
+                            }
+
+                            echo "</li>";
                         }
                         echo "</ul>";
                     } else {
@@ -158,13 +198,12 @@ $resultChapters = $stmtChapters->get_result();
                     ?>
                 </div>
                 <br>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 </main>
-                </section>
-                <div id="notificationtext" class="notificationtext"></div>   
+<div id="notificationtext" class="notificationtext"></div>   
 
 <!-- Add Chapter Modal -->
 <div class="modal fade" id="addChapterModal" tabindex="-1" role="dialog" aria-labelledby="addChapterModalLabel" aria-hidden="true">
@@ -222,16 +261,16 @@ $resultChapters = $stmtChapters->get_result();
                     <div class="form-group">
                         <label for="chapterId">Select Chapter:</label>
                         <select class="form-control" name="chapterId" required>
-                            <?php
-                            // Fetch chapters for dropdown
-                            $resultChapters->data_seek(0);
-                            while ($rowChapters = $resultChapters->fetch_assoc()) {
-                                $chapterId = $rowChapters['id'];
-                                $chapterName = $rowChapters['chapter_name'];
-                                echo "<option value='$chapterId'>$chapterName</option>";
-                            }
-                            ?>
-                        </select>
+                        <?php
+                        // Fetch chapters for dropdown
+                        $resultChapters->data_seek(0);
+                        while ($rowChapters = $resultChapters->fetch_assoc()) {
+                            $chapterId = $rowChapters['id'];
+                            $chapterName = $rowChapters['chapter_name'];
+                            echo "<option value='$chapterId'>$chapterName</option>";
+                        }
+                        ?>
+                    </select>
                     </div>
                     <button type="submit" class="btn btn-primary mt-3">Add Topic</button>
                 </form>

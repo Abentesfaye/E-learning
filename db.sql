@@ -63,5 +63,6 @@ CREATE TABLE chapters (
 CREATE TABLE topics (
     id INT AUTO_INCREMENT PRIMARY KEY,
     chapter_id INT,
-    topic_name VARCHAR(255)
+    topic_name VARCHAR(255),
+    description VARCHAR(255)
 );

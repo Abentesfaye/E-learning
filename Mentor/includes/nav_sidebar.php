@@ -30,10 +30,10 @@ if ($result->num_rows > 0) {
                     <span class='text'>Dashboard</span>
                 </a>
             </li>
-            <li class='<?php echo ($activePage === 'createCourse') ? 'active' : ''; ?>'>
-                <a href='./manageMentor.php' >
+            <li class='<?php echo ($activePage === 'Course') ? 'active' : ''; ?>'>
+                <a href='./courses.php' >
                     <i class='bx bxs-shopping-bag-alt' ></i>
-                    <span class='text'>CreateCourse</span>
+                    <span class='text'>Course</span>
                 </a>
             </li>
             <li class='<?php echo ($activePage === 'ManageCourse') ? 'active' : ''; ?>'>
