@@ -52,6 +52,7 @@ CREATE TABLE AssignedCourse (
     id INT PRIMARY KEY AUTO_INCREMENT,
     course_id INT,
     mentor_id INT
+    status ENUM('not_prepared', 'preparing', 'submited', 'reviewing', 'reviewed' 'confirmed' 'rejected') DEFAULT 'not_prepared',
 );
 CREATE TABLE chapters (
     id INT AUTO_INCREMENT PRIMARY KEY,

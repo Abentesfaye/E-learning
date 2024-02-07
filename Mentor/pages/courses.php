@@ -104,40 +104,49 @@ $conn->close();
         <?php include("../includes/pageHeader.php"); ?>
         
         <div class="container mt-5">
+<!-- List assigned courses -->
             <!-- List assigned courses -->
-          <!-- List assigned courses -->
-<h2>Assigned Courses</h2>
-<?php if (!empty($assignedCoursesDetails)) : ?>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Course ID</th>
-                <th>Course Name</th>
-                <th>Department</th>
-                <th>Class</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($assignedCoursesDetails as $course) : ?>
-                <tr style="cursor: pointer;">
-    <a href="other_page.php?course_id=<?php echo $course['id']; ?>" style="display: block; width: 100%; height: 100%;">
-        <!-- Content of the row -->
-        <td><?php echo $course['id']; ?></td>
-        <td><?php echo $course['course_name']; ?></td>
-        <td><?php echo $course['department_name']; ?></td>
-        <td><?php echo $course['class_name']; ?></td>
-    </a>
-</tr>
-
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-<?php else : ?>
-    <p>You are currently not assigned to any courses. Please stay tuned until the admin assigns you to a course.</p>
-<?php endif; ?>
-
-                </tbody>
-            </table>
+            <h2>Assigned Courses</h2>
+            <?php if (!empty($assignedCoursesDetails)) : ?>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Course ID</th>
+                            <th>Course Name</th>
+                            <th>Department</th>
+                            <th>Class</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($assignedCoursesDetails as $course) : ?>
+                            <tr style="cursor: pointer;">
+                                <td>
+                                    <a href="manageCourse.php?course_id=<?php echo $course['id']; ?>">
+                                        <?php echo $course['id']; ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="manageCourse.php?course_id=<?php echo $course['id']; ?>">
+                                        <?php echo $course['course_name']; ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="manageCourse.php?course_id=<?php echo $course['id']; ?>">
+                                        <?php echo $course['department_name']; ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="manageCourse.php?course_id=<?php echo $course['id']; ?> target">
+                                        <?php echo $course['class_name']; ?>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else : ?>
+                <p>You are currently not assigned to any courses. Please stay tuned until the admin assigns you to a course.</p>
+            <?php endif; ?>
         </div>
     </main>
 </body>
