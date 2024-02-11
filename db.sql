@@ -53,6 +53,8 @@ CREATE TABLE AssignedCourse (
     course_id INT,
     mentor_id INT
     status ENUM('not_prepared', 'preparing', 'submited', 'reviewing', 'reviewed' 'confirmed' 'rejected') DEFAULT 'not_prepared',
+     progress FLOAT DEFAULT 0;
+
 );
 CREATE TABLE chapters (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,3 +69,33 @@ CREATE TABLE topics (
     topic_name VARCHAR(255),
     description VARCHAR(255)
 );
+CREATE TABLE EducationContent (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT,
+    chapter_id INT,
+    topic_id INT,
+    video VARCHAR(255),
+    video_title VARCHAR(255),
+    video_description TEXT,
+    thumbnail VARCHAR(255),  
+    note TEXT,           
+    file_ VARCHAR(255),
+    file_title VARCHAR(255),
+    file_description TEXT, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE TABLE course_creation_progress (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mentor_id INT,
+    course_id INT,
+    chapter_id INT,
+    topic_id INT,
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+)
+
+CREATE TABLE courseCover (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT,
+    cover VARCHAR(255)
+)

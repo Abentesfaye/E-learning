@@ -93,6 +93,20 @@ $conn->close();
             color: #495057;
             border-color: #b9bcc0;
         }
+
+        /* Hover effect on table rows */
+        tr:hover {
+            background-color: gray;
+        }
+
+        /* Style for anchor tag inside table rows */
+        tr a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: inherit;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -104,7 +118,6 @@ $conn->close();
         <?php include("../includes/pageHeader.php"); ?>
         
         <div class="container mt-5">
-<!-- List assigned courses -->
             <!-- List assigned courses -->
             <h2>Assigned Courses</h2>
             <?php if (!empty($assignedCoursesDetails)) : ?>
@@ -136,7 +149,7 @@ $conn->close();
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="manageCourse.php?course_id=<?php echo $course['id']; ?> target">
+                                    <a href="manageCourse.php?course_id=<?php echo $course['id']; ?>">
                                         <?php echo $course['class_name']; ?>
                                     </a>
                                 </td>

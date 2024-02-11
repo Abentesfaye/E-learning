@@ -24,7 +24,7 @@ if (!isset($_GET['course_id'])) {
 
 // Assign the course_id value
 $courseId = $_GET['course_id'];
-
+$_SESSION['course_id'] = $courseId;
 // Check if error or success message exists in session and display them
 if (isset($_SESSION['errorMsg'])) {
     showNotification($_SESSION['errorMsg']);
@@ -43,34 +43,92 @@ $query = "SELECT ac.status, c.course_name, d.department_name, cl.class_name
           INNER JOIN department d ON cl.department_id = d.id
           WHERE ac.course_id = ? AND ac.mentor_id = ?";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("ii", $courseId, $mentorId); 
+$stmt->bind_param("ii", $courseId, $mentorId);
 $stmt->execute();
 $result = $stmt->get_result();
 
 // Check if a row was found
-if ($row = $result->fetch_assoc()) {
-    $status = $row['status'];
-    $courseName = $row['course_name'];
-    $departmentName = $row['department_name'];
-    $className = $row['class_name'];
-} else {
+if (!$row = $result->fetch_assoc()) {
     $_SESSION["errorMsg"] = "Course not found";
     header("location: manageCourse.php");
     exit();
 }
 
-// Retrieve chapters for the course
-$queryChapters = "SELECT c.id, c.chapter_name, c.chapter_number, c.description, GROUP_CONCAT(t.topic_name SEPARATOR ', ') AS topics
-                  FROM chapters c
-                  LEFT JOIN topics t ON c.id = t.chapter_id
-                  WHERE c.course_id = ?
-                  GROUP BY c.id";
+$status = $row['status'];
+$courseName = $row['course_name'];
+$departmentName = $row['department_name'];
+$className = $row['class_name'];
+
+// Retrieve all chapters for the course
+$queryChapters = "SELECT id, chapter_number, chapter_name FROM chapters WHERE course_id = ?";
 $stmtChapters = $conn->prepare($queryChapters);
 $stmtChapters->bind_param("i", $courseId);
 $stmtChapters->execute();
 $resultChapters = $stmtChapters->get_result();
-?>
 
+// Function to check if a topic is completed
+function isTopicCompleted($topicId) {
+    global $conn, $courseId;
+
+    $query = "SELECT COUNT(*) AS total FROM EducationContent WHERE chapter_id IN (SELECT id FROM chapters WHERE course_id = ?) AND topic_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $courseId, $topicId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    return $row['total'] > 0;
+}
+
+// Function to calculate the progress of a chapter
+function calculateChapterProgress($chapterId) {
+    global $conn;
+
+    $query = "SELECT COUNT(*) AS total_topics FROM topics WHERE chapter_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $chapterId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $totalTopics = $row['total_topics'];
+
+    if ($totalTopics == 0) {
+        return 100; // If no topics, consider chapter completed
+    }
+
+    $completedTopics = 0;
+
+    $query = "SELECT id FROM topics WHERE chapter_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $chapterId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        if (isTopicCompleted($row['id'])) {
+            $completedTopics++;
+        }
+    }
+
+    return ($completedTopics / $totalTopics) * 100;
+}
+
+// Function to calculate the overall progress of the course
+function calculateOverallProgress($resultChapters) {
+    global $conn;
+
+    $overallProgress = 0;
+    $totalChapters = 0;
+
+    while ($row = $resultChapters->fetch_assoc()) {
+        $chapterProgress = calculateChapterProgress($row['id']);
+        $overallProgress += $chapterProgress;
+        $totalChapters++;
+    }
+
+    return $totalChapters > 0 ? ($overallProgress / $totalChapters) : 0;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,63 +138,134 @@ $resultChapters = $stmtChapters->get_result();
     <link rel="stylesheet" href="../../font.css">
     <link rel="stylesheet" href="../style/dashboard.css">
     <style>
-        /* Style to make the button look visually disabled */
-        .btn-light-darker {
-            background-color: #d6d8d9;
-            color: #495057;
-            border-color: #c8cbcf;
+       /* Custom CSS for Progress Bars */
+        .progress-bar-custom {
+            background-color: #28a745; /* Green color */
+            border-color: #28a745; /* Border color same as background color */
+            color: #fff; /* Text color */
         }
 
-        .btn-light-darker:hover {
-            background-color: #c8cbcf;
-            color: #495057;
-            border-color: #b9bcc0;
-        }
+        /* Custom JS for Progress Bars remains the same */
+
+        /* Custom background colors for different status */
+        .status-not_prepared { background-color: #f8d7da; color: #721c24; }
+        .status-preparing { background-color: #ffeeba; color: #856404; }
+        .status-submited { background-color: #d4edda; color: #155724; }
+        .status-reviewing { background-color: #cce5ff; color: #004085; }
+        .status-reviewed { background-color: #d6d8d9; color: #383d41; }
+        .status-confirmed { background-color: #d4edda; color: #155724; }
+        .status-rejected { background-color: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
 <main>
+      <div id="notificationtext" class="notificationtext"></div>  
     <div class="container">
         <h2 class="text-center mt-5">Manage Assigned Course</h2>
-        <div class="border mt-5 pl-5">
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <p>Course Name: <?php echo $courseName; ?></p>
-                    <p>Department: <?php echo $departmentName; ?></p>
+        
+        <!-- Course Analytics Section -->
+        <div class="row mt-5">
+            <div class="col-md-12 border">
+                <h5 class="text-center">Course Analytics</h5>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p><strong>Overall Progress:</strong></p>
+                        <div class="progress">
+                            <div id="overallProgress" class="progress-bar progress-bar-striped progress-bar-custom" role="progressbar" style="width: <?php echo calculateOverallProgress($resultChapters); ?>%;" aria-valuenow="<?php echo calculateOverallProgress($resultChapters); ?>" aria-valuemin="0" aria-valuemax="100"><?php echo calculateOverallProgress($resultChapters); ?>%</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <p>Status: &nbsp;&nbsp;<span class="btn btn-success"><?php echo $status; ?></span></p> 
-                    <p>Grade: <?php echo $className; ?></p> 
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <p><strong>Chapter-wise Progress:</strong></p>
+                        <div class="accordion" id="chapterAccordion">
+                            <?php
+                            if ($resultChapters->num_rows > 0) {
+                                while ($rowChapters = $resultChapters->fetch_assoc()) {
+                                    // Calculate progress for the current chapter
+                                    $chapterProgress = calculateChapterProgress($rowChapters['id']);
+                                    ?>
+                                    <div class="card">
+                                        <div class="card-header" id="heading<?php echo $rowChapters['id']; ?>">
+                                            <h2 class="mb-0">
+                                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $rowChapters['id']; ?>" aria-expanded="true" aria-controls="collapse<?php echo $rowChapters['id']; ?>">
+                                                    Chapter <?php echo $rowChapters['chapter_number']; ?>: <?php echo $rowChapters['chapter_name']; ?>
+                                                </button>
+                                            </h2>
+                                        </div>
+
+                                        <div id="collapse<?php echo $rowChapters['id']; ?>" class="collapse" aria-labelledby="heading<?php echo $rowChapters['id']; ?>" data-parent="#chapterAccordion">
+                                            <div class="card-body">
+                                                <p><strong>Progress:</strong></p>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-striped progress-bar-custom" role="progressbar" style="width: <?php echo $chapterProgress; ?>%;" aria-valuenow="<?php echo $chapterProgress; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo $chapterProgress; ?>%</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php
+                                }
+                            } else {
+                                echo "<p>No chapters available</p>";
+                            }
+                            ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="row mt-5">
-            <div class="col-md-6 border">
+        
+        <!-- Actions Section -->
+        <div class="row mt-5 border">
+            <div class="col-md-12 mb-5 ">
                 <h5 class="text-center">Actions</h5>
                 <div class="container">
-                    <button class="btn btn-success">Create</button>
-                    <button class="btn btn-primary">Update</button>
-                    <button class="btn btn-danger">Delete</button>
-                    <button class="btn btn-dark"><a href="../../Admin/serverSide/pdf.php?courseId=<?php echo $courseId; ?>" class="text-white">Download Course Outline</a></button>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateVideoModal"><i class='bx bx-video'></i> Add/Update Video</button>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateNoteModal"><i class='bx bx-note'></i> Add/Update Note</button>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateReferenceModal"><i class='bx bx-book-open'></i> Add/Update Reference</button>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addcoverModal"><i class='bx bx-book-open'></i> Add/Update Course cover image</button>
+                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addUpdateReferenceModal"><i class='bx bx-book-open'></i>Send to admin for review</button>
+                    <button class="btn btn-primary btn-sm mt-3"><a href="../../Admin/serverSide/pdf.php?courseId=<?php echo $courseId; ?>" class="text-white"><i class='bx bxs-file-pdf'></i> Download Course Outline</a></button>
                 </div>
-                <div class="container mt-5">
-                    <h5 class="text-center">Course Anlytics</h5>
+            </div>
+        </div>
+        
+        <!-- Course Details Section -->
+        <div class="row mt-5">
+            <div class="col-md-6 border">
+                <h5 class="text-center">Course Details</h5>
+                <div class="container">
+                    <p>Course Name: <?php echo $courseName; ?></p>
+                    <p>Department: <?php echo $departmentName; ?></p>
+                    <p>Status: &nbsp;&nbsp;<span class="btn status-<?php echo $status; ?>"><?php echo $status; ?></span></p>
+                    <p>Grade: <?php echo $className; ?></p>
                 </div>
             </div>
             <div class="col-md-6 border">
                 <h5 class="text-center text-success">Course Outline</h5>
                 <div id="existingChapters">
                     <?php
+                    // Reset resultChapters pointer to beginning
+                    $resultChapters->data_seek(0);
+
                     if ($resultChapters->num_rows > 0) {
                         while ($rowChapters = $resultChapters->fetch_assoc()) {
                             echo "<ul>";
-                            echo "<li><b>Chapter {$rowChapters['chapter_number']}:</b> {$rowChapters['chapter_name']} - {$rowChapters['description']}<br>";
+                            echo "<li><b>Chapter {$rowChapters['chapter_number']}:</b> {$rowChapters['chapter_name']}<br>";
                             echo "<ul>";
-                            if (!empty($rowChapters['topics'])) {
-                                $topics = explode(', ', $rowChapters['topics']);
-                                foreach ($topics as $topic) {
-                                    echo "<li>$topic</li>";
+                            // Fetch topics for the current chapter
+                            $queryTopics = "SELECT topic_name, id FROM topics WHERE chapter_id = ?";
+                            $stmtTopics = $conn->prepare($queryTopics);
+                            $stmtTopics->bind_param("i", $rowChapters['id']);
+                            $stmtTopics->execute();
+                            $resultTopics = $stmtTopics->get_result();
+                            if ($resultTopics->num_rows > 0) {
+                                while ($rowTopics = $resultTopics->fetch_assoc()) {
+                                    echo "<li>{$rowTopics['topic_name']}";
+                                    if (isTopicCompleted($rowTopics['id'])) {
+                                        echo " - Completed";
+                                    }
+                                    echo "</li>";
                                 }
                             } else {
                                 echo "<li>No topics available</li>";
@@ -153,6 +282,272 @@ $resultChapters = $stmtChapters->get_result();
             </div>
         </div>
     </div>
-    <div id="notificationtext" class="notificationtext"></div>   
+
+    <div class="modal fade" id="addUpdateVideoModal" tabindex="-1" role="dialog" aria-labelledby="addUpdateVideoModalLabel" aria-hidden="true">
+    <!-- Modal content -->
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUpdateVideoModalLabel">Add/Update Video</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Dropdown for selecting chapters -->
+                <form action="../serverSide/addVideo.php" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="chapterDropdown">Chapter:</label>
+                    <select id="chapterDropdown" name="chapterDropdown" class="form-control mb-2">
+                        <?php
+                        // Fetch chapters for the course from the database
+                        $queryChapters = "SELECT id, chapter_number, chapter_name FROM chapters WHERE course_id = ?";
+                        $stmtChapters = $conn->prepare($queryChapters);
+                        $stmtChapters->bind_param("i", $courseId);
+                        $stmtChapters->execute();
+                        $resultChapters = $stmtChapters->get_result();
+
+                        // Check if chapters are available
+                        if ($resultChapters->num_rows > 0) {
+                            // Loop through each chapter and create options for the dropdown
+                            while ($rowChapter = $resultChapters->fetch_assoc()) {
+                                echo "<option value='" . $rowChapter['id'] . "'>Chapter " . $rowChapter['chapter_number'] . ": " . $rowChapter['chapter_name'] . "</option>";
+                            }
+                        } else {
+                            echo "<option value=''>No chapters available</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="topicDropdown">Topic:</label>
+                    <select id="topicDropdown" name="topicDropdown" class="form-control">
+                        <!-- Topics Dropdown - Filled by JavaScript -->
+                    </select>
+                </div>
+                <!-- Input fields for video title, URL, and description -->
+                <div class="form-group">
+                    <label for="videoTitle">Video Title:</label>
+                    <input type="text" class="form-control" id="videoTitle" name="videoTitle" placeholder="Enter video title" required>
+                </div>
+                <div class="form-group mb-2 mt-1">
+                    <label for="videoFile">Upload Video:</label>
+                    <input type="file" class="form-control-file border" name="videoFile" id="videoFile" required>
+
+                </div>
+                <div class="form-group">
+                    <label for="thumbnailFile">Upload Thumbnail:</label>
+                    <input type="file" class="form-control-file border" id="thumbnailFile" name="thumbnailFile" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="videoDescription">Video Description:</label>
+                    <textarea class="form-control" id="videoDescription" name="videoDescription" placeholder="Enter video description"></textarea>
+                </div>
+                <!-- Dropdown for selecting topics (will be filled by JavaScript) -->
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addUpdateNoteModal" tabindex="-1" role="dialog" aria-labelledby="addUpdateNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUpdateNoteModalLabel">Add/Update Note</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Dropdown for selecting chapters -->
+                <form action="../serverSide/addNote.php" method="post">
+                <div class="form-group">
+                    <label for="chapterDropdownNote">Chapter:</label>
+                    <select id="chapterDropdownNote" name="chapterDropdown" class="form-control">
+                        <?php
+                        // Reset resultChapters pointer to beginning
+                        $resultChapters->data_seek(0);
+
+                        // Check if chapters are available
+                        if ($resultChapters->num_rows > 0) {
+                            // Loop through each chapter and create options for the dropdown
+                            while ($rowChapter = $resultChapters->fetch_assoc()) {
+                                echo "<option value='" . $rowChapter['id'] . "'>Chapter " . $rowChapter['chapter_number'] . ": " . $rowChapter['chapter_name'] . "</option>";
+                            }
+                        } else {
+                            echo "<option value=''>No chapters available</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <!-- Dropdown for selecting topics -->
+                <div class="form-group">
+                    <label for="topicDropdown">Topic:</label>
+                    <select id="topicDropdown" name="topicDropdown" class="form-control" required>
+                        <!-- Topics Dropdown - Filled by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="noteDescription">Note:</label>
+                    <textarea class="form-control" id="noteDescription" name="note" placeholder="Enter note here"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" id="saveNoteBtn">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="addUpdateReferenceModal" tabindex="-1" role="dialog" aria-labelledby="addUpdateReferenceModalLabel" aria-hidden="true">
+    <!-- Modal content -->
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUpdateReferenceModalLabel">Add/Update Reference</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="../serverSide/addFile.php" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <!-- Dropdown for selecting chapters (same as in Add/Update Video Modal) -->
+                    <div class="form-group">
+                        <label for="chapterDropdownRefenance">Chapter:</label>
+                        <select id="chapterDropdownRefenance" name="chapterDropdown" class="form-control">
+                            <?php
+                            // Reset resultChapters pointer to beginning
+                            $resultChapters->data_seek(0);
+
+                            // Check if chapters are available
+                            if ($resultChapters->num_rows > 0) {
+                                // Loop through each chapter and create options for the dropdown
+                                while ($rowChapter = $resultChapters->fetch_assoc()) {
+                                    echo "<option value='" . $rowChapter['id'] . "'>Chapter " . $rowChapter['chapter_number'] . ": " . $rowChapter['chapter_name'] . "</option>";
+                                }
+                            } else {
+                                echo "<option value=''>No chapters available</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="topicDropdown">Topic:</label>
+                        <select id="topicDropdown" name="topicDropdown" class="form-control" required>
+                            <!-- Topics Dropdown - Filled by JavaScript -->
+                        </select>
+                    </div>
+                    <!-- Input fields for reference title, file upload, and description -->
+                    <div class="form-group">
+                        <label for="referenceTitle">Reference Title:</label>
+                        <input type="text" class="form-control" id="referenceTitle" name="file_title" placeholder="Enter reference title">
+                    </div>
+                    <div class="form-group">
+                        <label for="referenceFile">Reference File:</label>
+                        <input type="file" class="form-control-file border" id="referenceFile" name="referenceFile" accept=".pdf,.doc,.docx,.ppt,.pptx">
+                    </div>
+                    <div class="form-group">
+                        <label for="referenceDescription">Reference Description:</label>
+                        <textarea class="form-control" id="referenceDescription" name="fileDescription" placeholder="Enter reference description"></textarea>
+                    </div>
+            
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addcoverModal" tabindex="-1" role="dialog" aria-labelledby="addcoverModalLabel" aria-hidden="true">
+    <!-- Modal content -->
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUpdateVideoModalLabel">Add/Update Course Cover</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Dropdown for selecting chapters -->
+                <form action="../serverSide/addcover.php" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="coverImage">Upload Cover Image:</label>
+                    <input type="file" class="form-control-file border" id="courseCover" name="coverImage" accept="image/*" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+// Function to fetch topics for a selected chapter
+function fetchTopicsForChapter(chapterId, modalId) {
+    // Fetch topics for the selected chapter from the server using AJAX
+    $.ajax({
+        url: 'fetchTopics.php', // Replace with the actual URL to fetch topics
+        method: 'GET',
+        data: { chapterId: chapterId }, // Pass the chapter ID here
+        success: function(response) {
+            // Log response to check if data is fetched correctly
+            console.log('Fetched topics:', response);
+            // Populate topics dropdown in the modal with fetched data
+            $(modalId + ' #topicDropdown').html(response);
+        },
+        error: function(xhr, status, error) {
+            // Handle error
+            console.error('Error fetching topics:', error);
+        }
+    });
+}
+
+// Call fetchTopicsForChapter function when a chapter is selected
+$('#chapterDropdown').change(function() {
+    // Get the selected chapter ID (which corresponds to the 'id' field in the database)
+    var selectedChapterId = $(this).val(); // Use the value of the selected option
+    // Get the modal ID of the Add/Update Video modal
+    var modalId = '#addUpdateVideoModal';
+    // Call fetchTopicsForChapter function to fetch topics for the selected chapter
+    fetchTopicsForChapter(selectedChapterId, modalId);
+});
+    // Call fetchTopicsForChapter function when a chapter is selected
+    $('#chapterDropdownNote').change(function() {
+        // Get the selected chapter ID (which corresponds to the 'id' field in the database)
+        var selectedChapterId = $(this).val(); // Use the value of the selected option
+        // Get the modal ID of the Add/Update Note modal
+        var modalId = '#addUpdateNoteModal';
+        // Call fetchTopicsForChapter function to fetch topics for the selected chapter
+        fetchTopicsForChapter(selectedChapterId, modalId);
+    });
+       // Call fetchTopicsForChapter function when a chapter is selected
+       $('#chapterDropdownRefenance').change(function() {
+        // Get the selected chapter ID (which corresponds to the 'id' field in the database)
+        var selectedChapterId = $(this).val(); // Use the value of the selected option
+        // Get the modal ID of the Add/Update Note modal
+        var modalId = '#addUpdateReferenceModal';
+        // Call fetchTopicsForChapter function to fetch topics for the selected chapter
+        fetchTopicsForChapter(selectedChapterId, modalId);
+    });
+    addUpdateReferenceModal
+    </script>
 </body>
 </html>
