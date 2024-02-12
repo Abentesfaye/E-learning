@@ -99,3 +99,11 @@ CREATE TABLE courseCover (
     course_id INT,
     cover VARCHAR(255)
 )
+CREATE TABLE course_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mentor_id INT, 
+    course_id INT,
+    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    comment TEXT
+);

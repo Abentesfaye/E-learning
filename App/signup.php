@@ -52,7 +52,7 @@ if (isset($_SESSION['errorMsg'])) {
   </div>
 
   <!-- Add the notification element -->
-  <div id="notification" class="notification"></div>
+  <div id="notificationtext" class="notificationtext"></div>  
   <script src="./script/signupValidation.js"></script>
 </body>
 </html>

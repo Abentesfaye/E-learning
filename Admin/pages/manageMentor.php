@@ -4,8 +4,10 @@ include("../includes/notification.php");
 
 session_start(); // Ensure session is started
 // Set the active page variable
-$activePage = "manageMentor";
+ $activePage = "manageMentor";
+ $secondPage= "mentorRequest";
 $_SESSION['activePage'] = $activePage;
+$_SESSION['next'] = $secondPage;
 if (isset($_SESSION['errorMsg'])) {
     $errorMsg = $_SESSION['errorMsg'];
     showNotification($errorMsg);
@@ -38,7 +40,7 @@ $conn->close();
     <link rel="stylesheet" href="../../font.css">
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        /* Style to make the button look visually disabled */
+       
         .btn-light-darker {
             background-color: #d6d8d9;
             color: #495057;
@@ -116,7 +118,7 @@ $conn->close();
                                 <td><?php echo $row['status']; ?></td>
                                 <td>
                                     <a href='mentorDetail.php?mentorId=<?php echo $mentorId; ?>' target='_blank' class='btn btn-primary'>Manage</a>
-                                    <!-- Assign button with data-toggle for the modal -->
+                                   
                                     <button type="button" class="btn <?php echo $buttonClass; ?> mt-1"
                                         data-toggle="modal" data-target="#assignModal<?php echo $mentorId; ?>"
                                         onclick="handleAssignClick('<?php echo $mentorId; ?>', '<?php echo $status; ?>', '<?php echo $modalMessage; ?>')">
@@ -149,7 +151,7 @@ $conn->close();
     }
 
     if (status === 'active') {
-        // Add logic to open a new window or perform other actions
+       
         window.open('mentor_add.php?mentorId=' + mentorId);
     }
 }

@@ -1,7 +1,7 @@
 <?php
-// Set the active page variable
-$activePage = isset($_SESSION['activePage']) ? $_SESSION['activePage'] : '';
-$nextPage = isset($_SESSION['next']) ? $_SESSION['next'] : '';
+
+$activePage = $_SESSION['activePage'];
+$nextPage = $_SESSION['next'];
 ?>
 <div class="head-title">
     <div class="left">

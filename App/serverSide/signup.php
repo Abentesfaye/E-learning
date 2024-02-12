@@ -41,8 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // Create a session and store the user ID
             $_SESSION['userID'] = $userID;
 
-            // Redirect to a success page or login page
-            header("Location: ../pages/home.php");
+            $_SESSION['successMsg'] = "Registered Successfuly";
+            header("Location: ../index.php");
             exit();
         } else {
             // Log the error
@@ -60,8 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 // Close the connection
 $conn->close();
-
 function sanitizeInput($data) {
     return htmlspecialchars(strip_tags(trim($data)));
 }
+
 ?>

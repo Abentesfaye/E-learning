@@ -1,5 +1,5 @@
 <?php
-// Set the active page variable
+
 $activePage = isset($_SESSION['activePage']) ? $_SESSION['activePage'] : '';
 ?>
 
@@ -39,7 +39,7 @@ $activePage = isset($_SESSION['activePage']) ? $_SESSION['activePage'] : '';
                     <span class='text'>Create Course</span>
                 </a>
             </li>
-            <!-- Add other navigation links as needed -->
+    
         </ul>
         <ul class='side-menu'>
             <li>
@@ -59,7 +59,7 @@ $activePage = isset($_SESSION['activePage']) ? $_SESSION['activePage'] : '';
     <section id='content'>
     <nav>
         <i class='bx bx-menu' ></i>
-        <!-- Add other navigation links as needed -->
+    
         <form action='#'>
             <div class='form-input'>
                 <input type='search' placeholder='Search...'>

@@ -90,7 +90,7 @@ $resultChapters = $stmtChapters->get_result();
     <link rel="stylesheet" href="../../font.css">
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        /* Style to make the button look visually disabled */
+
         .btn-light-darker {
             background-color: #d6d8d9;
             color: #495057;
@@ -279,7 +279,6 @@ $resultChapters = $stmtChapters->get_result();
     </div>
 </div>
 
-<!-- Ensure jQuery, Popper.js, and Bootstrap JS are included -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

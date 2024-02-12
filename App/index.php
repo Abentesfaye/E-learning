@@ -9,6 +9,12 @@ if (isset($_SESSION['errorMsg'])) {
     // Clear the error message from the session to prevent displaying it multiple times
     unset($_SESSION['errorMsg']);
 }
+if (isset($_SESSION['successMsg'])) {
+    $successMsg = $_SESSION['successMsg'];
+    showgoodNotification($successMsg);
+    // Clear the error message from the session to prevent displaying it multiple times
+    unset($_SESSION['successMsg']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,7 +48,7 @@ if (isset($_SESSION['errorMsg'])) {
   </div>
  
  <!-- Add the notification element -->
- <div id="notification" class="notification"></div>
+ <div id="notificationtext" class="notificationtext"></div>  
 
 </body>
 </html>

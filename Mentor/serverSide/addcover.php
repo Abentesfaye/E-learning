@@ -11,62 +11,35 @@ if (!isset($_SESSION["mentorID"])) {
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Get course_id and mentor_id from session
+// Get course_id from session
+if (!isset($_SESSION['course_id'])) {
+    $_SESSION['errorMsg'] = "Course ID not found in session.";
+    header("Location: ../index.php");
+    exit();
+}
 $courseId = $_SESSION['course_id'];
-$mentorId = $_SESSION['mentorID'];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-   
-    // Upload  file
-    $referenceFile = uploadFile('referenceFile', '../../EducationContent/File/');
-    if (!$referenceFile) {
-        $_SESSION['errorMsg'] = "Failed to upload Referance.";
-    }
-
-    if (!$referenceFile) {
+    // Upload cover image
+    $coverImage = uploadFile('coverImage', '../../EducationContent/CoverImage/');
+    if (!$coverImage) {
+        $_SESSION['errorMsg'] = "Failed to upload cover image.";
         header("Location: ../pages/manageCourse.php?course_id=$courseId");
         exit();
+    }
+
+    // Insert cover image into database
+    $insertQuery = "INSERT INTO coursecover (course_id, cover) VALUES (?, ?)";
+    $stmtInsert = $conn->prepare($insertQuery);
+    $stmtInsert->bind_param("is", $courseId, $coverImage);
+    if ($stmtInsert->execute()) {
+        $_SESSION['successMsg'] = "Course cover image added successfully.";
     } else {
-        // Check if row exists in EducationContent table for the given chapter and topic IDs
-        $checkQuery = "SELECT * FROM educationcontent WHERE chapter_id = ? AND topic_id = ?";
-        $stmtCheck = $conn->prepare($checkQuery);
-        $stmtCheck->bind_param("ii", $chapterId, $topicId);
-        $stmtCheck->execute();
-        $resultCheck = $stmtCheck->get_result();
-
-        if ($resultCheck->num_rows > 0) {
-            // Row already exists, update the existing row
-            $updateQuery = "UPDATE educationcontent SET file_ = ?, file_title= ?, file_description = ? WHERE chapter_id = ? AND topic_id = ?";
-            $stmtUpdate = $conn->prepare($updateQuery);
-            $stmtUpdate->bind_param("sssii", $referenceFile, $file_title, $fileDescription, $chapterId, $topicId);
-            if ($stmtUpdate->execute()) {
-                $_SESSION['successMsg'] = "Inserted successfully.";
-            } else {
-                $_SESSION['errorMsg'] = "Error Inserting Please try again.";
-            }
-        } else {
-            // Row does not exist, insert a new row
-            $insertQuery = "INSERT INTO educationcontent (course_id, chapter_id, topic_id, file_, file_title,  file_description) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmtInsert = $conn->prepare($insertQuery);
-            $stmtInsert->bind_param("iiissss", $courseId, $chapterId, $topicId, $referenceFile, $file_title, $videoTitle, $fileDescription);
-            if ($stmtInsert->execute()) {
-                // Change status in AssignedCourses table to "preparing"
-                $updateStatusQuery = "UPDATE AssignedCourse SET status = 'preparing' WHERE course_id = ? AND mentor_id = ?";
-                $stmtUpdateStatus = $conn->prepare($updateStatusQuery);
-                $stmtUpdateStatus->bind_param("ii", $courseId, $mentorId);
-                if ($stmtUpdateStatus->execute()) {
-                    $_SESSION['successMsg'] = "Course status updated successfully.<br>";
-                } else {
-                    $_SESSION['errorMsg'] = "Error updating course status.";
-                }
-                $_SESSION['successMsg'] = "Uploaded successfully";
-            } else {
-                $_SESSION['errorMsg'] = "Error inserting new row.<br>";
-            }
-        }
-        header("Location: ../pages/manageCourse.php?course_id=$courseId");
-        exit();
+        $_SESSION['errorMsg'] = "Error uploading cover image.";
     }
+    $stmtInsert->close();
+    header("Location: ../pages/manageCourse.php?course_id=$courseId");
+    exit();
 }
 
 // Function to upload a file and return its destination path

@@ -1,5 +1,5 @@
 <?php
-// fetch_courses.php
+
 
 // Check if the class ID is set in the request
 if (isset($_GET['class_id'])) {

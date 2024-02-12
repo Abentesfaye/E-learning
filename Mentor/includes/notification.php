@@ -5,19 +5,20 @@ function showNotification($errorMsg)
         echo '<style>
             .notificationtext {
                 position: fixed;
-                bottom: 20px;
-                right: 20px;
+                top: 20px;
+                right: 20px; /* Adjust right position */
                 padding: 15px;
                 background-color: #e74c3c; /* Red color */
                 color: #fff;
                 border-radius: 5px;
                 display: none;
                 animation: slideIn 0.5s ease-in-out;
+                z-index: 9999; /* Set a high z-index value */
             }
 
             @keyframes slideIn {
                 from {
-                    transform: translateY(100%);
+                    transform: translateY(-100%);
                     opacity: 0;
                 }
                 to {
@@ -57,19 +58,20 @@ function showGoodNotification($successMsg)
         echo '<style>
             .notificationtext {
                 position: fixed;
-                bottom: 20px;
-                right: 20px;
+                top: 20px;
+                right: 20px; /* Adjust right position */
                 padding: 15px;
                 background-color: #2ecc71; /* Green color */
                 color: #fff;
                 border-radius: 5px;
                 display: none;
                 animation: slideIn 0.5s ease-in-out;
+                z-index: 9999; /* Set a high z-index value */
             }
 
             @keyframes slideIn {
                 from {
-                    transform: translateY(100%);
+                    transform: translateY(-100%);
                     opacity: 0;
                 }
                 to {
@@ -96,7 +98,7 @@ function showGoodNotification($successMsg)
                     // Hide the notification after 5 seconds
                     setTimeout(function () {
                         notificationtext.style.display = "none";
-                    }, 5000);
+                    }, 3000);
                 }
             });
         </script>';

@@ -50,9 +50,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         } else {
             // Row does not exist, insert a new row
-            $insertQuery = "INSERT INTO educationcontent (course_id, chapter_id, topic_id, file_, file_title,  file_description) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $insertQuery = "INSERT INTO educationcontent (course_id, chapter_id, topic_id, file_, file_title,  file_description) VALUES (?, ?, ?, ?, ?, ?)";
             $stmtInsert = $conn->prepare($insertQuery);
-            $stmtInsert->bind_param("iiissss", $courseId, $chapterId, $topicId, $referenceFile, $file_title, $videoTitle, $fileDescription);
+            $stmtInsert->bind_param("iiisss", $courseId, $chapterId, $topicId, $referenceFile, $file_title, $fileDescription);
             if ($stmtInsert->execute()) {
                 // Change status in AssignedCourses table to "preparing"
                 $updateStatusQuery = "UPDATE AssignedCourse SET status = 'preparing' WHERE course_id = ? AND mentor_id = ?";

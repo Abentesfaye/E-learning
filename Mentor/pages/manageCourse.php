@@ -4,7 +4,7 @@ session_start();
 // Include necessary files and start the session
 include("../includes/conn.php");
 include("../includes/notification.php");
-
+include("../includes/calculateProgress.php");
 // Prevent direct access
 if (!isset($_SESSION["mentorID"])) {
     header('location: ../index.php');
@@ -65,69 +65,38 @@ $stmtChapters = $conn->prepare($queryChapters);
 $stmtChapters->bind_param("i", $courseId);
 $stmtChapters->execute();
 $resultChapters = $stmtChapters->get_result();
+// Retrieve status from assigned course table
+$queryStatus = "SELECT status FROM assignedcourse WHERE course_id = ? AND mentor_id = ?";
+$stmtStatus = $conn->prepare($queryStatus);
+$stmtStatus->bind_param("ii", $courseId, $mentorId);
+$stmtStatus->execute();
+$stmtStatus->store_result();
 
-// Function to check if a topic is completed
-function isTopicCompleted($topicId) {
-    global $conn, $courseId;
+if ($stmtStatus->num_rows === 0) {
+   exit("");
+} else {
+    $stmtStatus->bind_result($status);
+    $stmtStatus->fetch();
+}
+$stmtStatus->close();
 
-    $query = "SELECT COUNT(*) AS total FROM EducationContent WHERE chapter_id IN (SELECT id FROM chapters WHERE course_id = ?) AND topic_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ii", $courseId, $topicId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
+$hasComment = false;
+$comment = "";
 
-    return $row['total'] > 0;
+if ($status === "reviewed") {
+    $queryComment = "SELECT comment FROM course_requests WHERE course_id = ?";
+    $stmtComment = $conn->prepare($queryComment);
+    $stmtComment->bind_param("i", $courseId);
+    $stmtComment->execute();
+    $stmtComment->store_result();
+
+    if ($stmtComment->num_rows > 0) {
+        $stmtComment->bind_result($comment);
+        $stmtComment->fetch();
+        $hasComment = true;
+    }
 }
 
-// Function to calculate the progress of a chapter
-function calculateChapterProgress($chapterId) {
-    global $conn;
-
-    $query = "SELECT COUNT(*) AS total_topics FROM topics WHERE chapter_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $chapterId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $totalTopics = $row['total_topics'];
-
-    if ($totalTopics == 0) {
-        return 100; // If no topics, consider chapter completed
-    }
-
-    $completedTopics = 0;
-
-    $query = "SELECT id FROM topics WHERE chapter_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $chapterId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        if (isTopicCompleted($row['id'])) {
-            $completedTopics++;
-        }
-    }
-
-    return ($completedTopics / $totalTopics) * 100;
-}
-
-// Function to calculate the overall progress of the course
-function calculateOverallProgress($resultChapters) {
-    global $conn;
-
-    $overallProgress = 0;
-    $totalChapters = 0;
-
-    while ($row = $resultChapters->fetch_assoc()) {
-        $chapterProgress = calculateChapterProgress($row['id']);
-        $overallProgress += $chapterProgress;
-        $totalChapters++;
-    }
-
-    return $totalChapters > 0 ? ($overallProgress / $totalChapters) : 0;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -136,7 +105,7 @@ function calculateOverallProgress($resultChapters) {
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../font.css">
-    <link rel="stylesheet" href="../style/dashboard.css">
+
     <style>
        /* Custom CSS for Progress Bars */
         .progress-bar-custom {
@@ -165,71 +134,110 @@ function calculateOverallProgress($resultChapters) {
         
         <!-- Course Analytics Section -->
         <div class="row mt-5">
-            <div class="col-md-12 border">
-                <h5 class="text-center">Course Analytics</h5>
-                <div class="row">
-                    <div class="col-md-12">
-                        <p><strong>Overall Progress:</strong></p>
-                        <div class="progress">
-                            <div id="overallProgress" class="progress-bar progress-bar-striped progress-bar-custom" role="progressbar" style="width: <?php echo calculateOverallProgress($resultChapters); ?>%;" aria-valuenow="<?php echo calculateOverallProgress($resultChapters); ?>" aria-valuemin="0" aria-valuemax="100"><?php echo calculateOverallProgress($resultChapters); ?>%</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <p><strong>Chapter-wise Progress:</strong></p>
-                        <div class="accordion" id="chapterAccordion">
-                            <?php
-                            if ($resultChapters->num_rows > 0) {
-                                while ($rowChapters = $resultChapters->fetch_assoc()) {
-                                    // Calculate progress for the current chapter
-                                    $chapterProgress = calculateChapterProgress($rowChapters['id']);
-                                    ?>
-                                    <div class="card">
-                                        <div class="card-header" id="heading<?php echo $rowChapters['id']; ?>">
-                                            <h2 class="mb-0">
-                                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $rowChapters['id']; ?>" aria-expanded="true" aria-controls="collapse<?php echo $rowChapters['id']; ?>">
-                                                    Chapter <?php echo $rowChapters['chapter_number']; ?>: <?php echo $rowChapters['chapter_name']; ?>
-                                                </button>
-                                            </h2>
-                                        </div>
-
-                                        <div id="collapse<?php echo $rowChapters['id']; ?>" class="collapse" aria-labelledby="heading<?php echo $rowChapters['id']; ?>" data-parent="#chapterAccordion">
-                                            <div class="card-body">
-                                                <p><strong>Progress:</strong></p>
-                                                <div class="progress">
-                                                    <div class="progress-bar progress-bar-striped progress-bar-custom" role="progressbar" style="width: <?php echo $chapterProgress; ?>%;" aria-valuenow="<?php echo $chapterProgress; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo $chapterProgress; ?>%</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php
-                                }
-                            } else {
-                                echo "<p>No chapters available</p>";
-                            }
-                            ?>
-                        </div>
-                    </div>
+    <div class="col-md-12 border">
+        <h5 class="text-center">Course Analytics</h5>
+        <div class="row">
+            <div class="col-md-12">
+                <p><strong>Overall Progress:</strong></p>
+                <div class="progress">
+                    <div id="overallProgress" class="progress-bar progress-bar-striped progress-bar-custom" role="progressbar" style="width: <?php echo calculateOverallProgress($courseId); ?>%;" aria-valuenow="<?php echo calculateOverallProgress($courseId); ?>" aria-valuemin="0" aria-valuemax="100"><?php echo calculateOverallProgress($courseId); ?>%</div>
                 </div>
             </div>
         </div>
-        
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <p><strong>Chapter-wise Progress:</strong></p>
+                <div class="accordion" id="chapterAccordion">
+                    <?php
+                    if ($resultChapters->num_rows > 0) {
+                        while ($rowChapters = $resultChapters->fetch_assoc()) {
+                            // Calculate progress for the current chapter
+                            $chapterProgress = calculateChapterProgress($rowChapters['id']);
+                            ?>
+                            <div class="card">
+                                <div class="card-header" id="heading<?php echo $rowChapters['id']; ?>">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $rowChapters['id']; ?>" aria-expanded="true" aria-controls="collapse<?php echo $rowChapters['id']; ?>">
+                                            Chapter <?php echo $rowChapters['chapter_number']; ?>: <?php echo $rowChapters['chapter_name']; ?>
+                                        </button>
+                                    </h2>
+                                </div>
+
+                                <div id="collapse<?php echo $rowChapters['id']; ?>" class="collapse" aria-labelledby="heading<?php echo $rowChapters['id']; ?>" data-parent="#chapterAccordion">
+                                    <div class="card-body">
+                                        <p><strong>Progress:</strong></p>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-custom" role="progressbar" style="width: <?php echo $chapterProgress; ?>%;" aria-valuenow="<?php echo $chapterProgress; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo $chapterProgress; ?>%</div>
+                                        </div>
+                                        <p><strong>Topic-wise Progress:</strong></p>
+                                        <ul>
+                                            <?php
+                                            // Fetch topics for the current chapter
+                                            $queryTopics = "SELECT topic_name, id FROM topics WHERE chapter_id = ?";
+                                            $stmtTopics = $conn->prepare($queryTopics);
+                                            $stmtTopics->bind_param("i", $rowChapters['id']);
+                                            $stmtTopics->execute();
+                                            $resultTopics = $stmtTopics->get_result();
+                                            if ($resultTopics->num_rows > 0) {
+                                                while ($rowTopics = $resultTopics->fetch_assoc()) {
+                                                    // Calculate progress for the current topic
+                                                    $topicProgress = calculateTopicProgress($rowChapters['id'], $rowTopics['id']);
+                                                    ?>
+                                                    <li>
+                                                        <?php echo $rowTopics['topic_name']; ?>
+                                                        <span class="progress-text"><?php echo $topicProgress; ?>%</span>
+                                                        <div class="progress">
+                                                            <div class="progress-bar progress-bar-striped progress-bar-custom" role="progressbar" style="width: <?php echo $topicProgress; ?>%;" aria-valuenow="<?php echo $topicProgress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </li>
+                                                    <?php
+                                                }
+                                            } else {
+                                                echo "<li>No topics available</li>";
+                                            }
+                                            ?>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                    } else {
+                        echo "<p>No chapters available</p>";
+                    }
+                    ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
         <!-- Actions Section -->
         <div class="row mt-5 border">
-            <div class="col-md-12 mb-5 ">
-                <h5 class="text-center">Actions</h5>
-                <div class="container">
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateVideoModal"><i class='bx bx-video'></i> Add/Update Video</button>
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateNoteModal"><i class='bx bx-note'></i> Add/Update Note</button>
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateReferenceModal"><i class='bx bx-book-open'></i> Add/Update Reference</button>
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addcoverModal"><i class='bx bx-book-open'></i> Add/Update Course cover image</button>
-                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addUpdateReferenceModal"><i class='bx bx-book-open'></i>Send to admin for review</button>
-                    <button class="btn btn-primary btn-sm mt-3"><a href="../../Admin/serverSide/pdf.php?courseId=<?php echo $courseId; ?>" class="text-white"><i class='bx bxs-file-pdf'></i> Download Course Outline</a></button>
-                </div>
-            </div>
+    <div class="col-md-12 mb-5 ">
+        <?php 
+            if ($status === "reviewing") {
+                echo "<p class='text-center text-danger'><strong>Sorry, you cannot perform any actions while the Admin is reviewing the course.</strong></p>";
+            } elseif ($status === "rejected") {
+                echo "<p class='text-center text-danger'><strong>Sorry, the Admin has rejected your proposal. Thank you for your effort. The Admin will assign you to another course.</strong></p>";
+            } elseif ($status === "confirmed") {
+                echo "<p class='text-center text-success'><strong>Congratulations! The course is approved. No need to update anything.</strong></p>";
+            } else {
+        ?>
+        <h5 class="text-center">Actions</h5>
+        <div class="container">
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateVideoModal"><i class='bx bx-video'></i> Add/Update Video</button>
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateNoteModal"><i class='bx bx-note'></i> Add/Update Note</button>
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUpdateReferenceModal"><i class='bx bx-book-open'></i> Add/Update Reference</button>
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addcoverModal"><i class='bx bx-book-open'></i> Add/Update Course cover image</button>
+            <button type="button" class="btn btn-success btn-sm"><a href="../serverSide/submitReq.php" class="text-white">Send to admin for review</a></button>
+            <button type="button" class="btn btn-success btn-sm mt-3"><a href="./publicview.php" class="text-white">Public view</a></button>
+            <button class="btn btn-primary btn-sm mt-3"><a href="../../Admin/serverSide/pdf.php?courseId=<?php echo $courseId; ?>" class="text-white"><i class='bx bxs-file-pdf'></i> Download Course Outline</a></button>
         </div>
-        
+        <?php } ?>
+    </div>
+</div>
+
         <!-- Course Details Section -->
         <div class="row mt-5">
             <div class="col-md-6 border">
@@ -239,7 +247,13 @@ function calculateOverallProgress($resultChapters) {
                     <p>Department: <?php echo $departmentName; ?></p>
                     <p>Status: &nbsp;&nbsp;<span class="btn status-<?php echo $status; ?>"><?php echo $status; ?></span></p>
                     <p>Grade: <?php echo $className; ?></p>
+                    <?php if ($hasComment): ?>
+            <div class="card-footer">
+                <p><strong>Comment:</strong> <?php echo $comment; ?></p>
+            </div>
+        <?php endif; ?>
                 </div>
+              
             </div>
             <div class="col-md-6 border">
                 <h5 class="text-center text-success">Course Outline</h5>
@@ -250,37 +264,63 @@ function calculateOverallProgress($resultChapters) {
 
                     if ($resultChapters->num_rows > 0) {
                         while ($rowChapters = $resultChapters->fetch_assoc()) {
-                            echo "<ul>";
-                            echo "<li><b>Chapter {$rowChapters['chapter_number']}:</b> {$rowChapters['chapter_name']}<br>";
-                            echo "<ul>";
-                            // Fetch topics for the current chapter
-                            $queryTopics = "SELECT topic_name, id FROM topics WHERE chapter_id = ?";
-                            $stmtTopics = $conn->prepare($queryTopics);
-                            $stmtTopics->bind_param("i", $rowChapters['id']);
-                            $stmtTopics->execute();
-                            $resultTopics = $stmtTopics->get_result();
-                            if ($resultTopics->num_rows > 0) {
-                                while ($rowTopics = $resultTopics->fetch_assoc()) {
-                                    echo "<li>{$rowTopics['topic_name']}";
-                                    if (isTopicCompleted($rowTopics['id'])) {
-                                        echo " - Completed";
-                                    }
-                                    echo "</li>";
-                                }
-                            } else {
-                                echo "<li>No topics available</li>";
-                            }
-                            echo "</ul>";
-                            echo "</li>";
-                            echo "</ul>";
+                            // Calculate progress for the current chapter
+                            $chapterProgress = calculateChapterProgress($rowChapters['id']);
+                            ?>
+                            <div class="card">
+                                <div class="card-header" id="heading<?php echo $rowChapters['id']; ?>">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $rowChapters['id']; ?>" aria-expanded="true" aria-controls="collapse<?php echo $rowChapters['id']; ?>">
+                                            Chapter <?php echo $rowChapters['chapter_number']; ?>: <?php echo $rowChapters['chapter_name']; ?>
+                                        </button>
+                                    </h2>
+                                </div>
+                    
+                                <div id="collapse<?php echo $rowChapters['id']; ?>" class="collapse" aria-labelledby="heading<?php echo $rowChapters['id']; ?>" data-parent="#chapterAccordion">
+                                    <div class="card-body">
+                                        <p><strong>Progress:</strong></p>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-custom" role="progressbar" style="width: <?php echo $chapterProgress; ?>%;" aria-valuenow="<?php echo $chapterProgress; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo $chapterProgress; ?>%</div>
+                                        </div>
+                                    </div>
+                    
+                                    <!-- Topic list with progress -->
+                                    <div class="card-body">
+                                        <p><strong>Topic-wise Progress:</strong></p>
+                                        <ul>
+                                            <?php
+                                            // Fetch topics for the current chapter
+                                            $queryTopics = "SELECT topic_name, id FROM topics WHERE chapter_id = ?";
+                                            $stmtTopics = $conn->prepare($queryTopics);
+                                            $stmtTopics->bind_param("i", $rowChapters['id']);
+                                            $stmtTopics->execute();
+                                            $resultTopics = $stmtTopics->get_result();
+                                            if ($resultTopics->num_rows > 0) {
+                                                while ($rowTopics = $resultTopics->fetch_assoc()) {
+                                                    // Calculate progress for the current topic
+                                                    $topicProgress = calculateTopicProgress($rowChapters['id'], $rowTopics['id']);
+                                                    ?>
+                                                    <li>
+                                                        <?php echo $rowTopics['topic_name']; ?>
+                                                        <?php echo $topicProgress; ?>%
+                                                    </li>
+                                                    <?php
+                                                }
+                                            } else {
+                                                echo "<li>No topics available</li>";
+                                            }
+                                            ?>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
                         }
                     } else {
                         echo "<p>No chapters available</p>";
                     }
                     ?>
-                </div>
-            </div>
-        </div>
+                </div>                    
     </div>
 
     <div class="modal fade" id="addUpdateVideoModal" tabindex="-1" role="dialog" aria-labelledby="addUpdateVideoModalLabel" aria-hidden="true">
@@ -479,7 +519,6 @@ function calculateOverallProgress($resultChapters) {
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Dropdown for selecting chapters -->
                 <form action="../serverSide/addcover.php" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="coverImage">Upload Cover Image:</label>
