@@ -26,8 +26,8 @@ The E-Learning Platform for Hashalu Hundesa Secondary School is a comprehensive 
 
 ## Development Team
 The platform is developed by a dedicated team of Computer Science students from Mettu University:
-- **Abenezer Tesfaye**
-- **Henok Akliku**
+- **<a src="https://github.com/Abentesfaye">Abenezer Tesfaye</a>**
+- **<a src="https://github.com/henok-aklilu">Henok Akliklu</a>**
 - **Jiregna Firdis**
 - **Tamirat Tafese**
 
