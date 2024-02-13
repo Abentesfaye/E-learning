@@ -107,3 +107,10 @@ CREATE TABLE course_requests (
     status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     comment TEXT
 );
+CREATE TABLE enrolled (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    course_id INT NOT NULL,
+    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);

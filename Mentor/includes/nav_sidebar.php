@@ -36,25 +36,6 @@ if ($result->num_rows > 0) {
                     <span class='text'>Course</span>
                 </a>
             </li>
-            <li class='<?php echo ($activePage === 'ManageCourse') ? 'active' : ''; ?>'>
-                <a href='./createDpt.php' >
-                    <i class='bx bxs-shopping-bag-alt' ></i>
-                    <span class='text'>Manage Course</span>
-                </a>
-            </li>
-            <li class='<?php echo ($activePage === 'createClass') ? 'active' : ''; ?>'>
-                <a href='./createClass.php' >
-                    <i class='bx bxs-shopping-bag-alt' ></i>
-                    <span class='text'>Create Class</span>
-                </a>
-            </li>
-            <li class='<?php echo ($activePage === 'createCourse') ? 'active' : ''; ?>'>
-                <a href='./createCourse.php' >
-                    <i class='bx bxs-shopping-bag-alt' ></i>
-                    <span class='text'>Create Course</span>
-                </a>
-            </li>
-            <!-- Add other navigation links as needed -->
         </ul>
         <ul class='side-menu'>
             <li>

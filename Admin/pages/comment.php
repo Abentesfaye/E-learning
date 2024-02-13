@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $comment = mysqli_real_escape_string($conn, $_POST['comment']);
     $course_id = mysqli_real_escape_string($conn, $_POST['course_id']);
     $mentor_id = mysqli_real_escape_string($conn, $_POST['mentor_id']);
- // Update the status to "reviewed" in the assigned course table
+
  $update_assigned_course_query = "UPDATE assignedcourse SET status = 'reviewed' WHERE course_id = $course_id AND mentor_id = $mentor_id";
  $update_assigned_course_result = mysqli_query($conn, $update_assigned_course_query);
 
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
      header("location: ./mentorRequest.php");
      exit();
  }
-    // Update the comment for the specific course request
+
     $update_comment_query = "UPDATE course_requests 
                              SET comment = '$comment' 
                              WHERE course_id = '$course_id' AND mentor_id = '$mentor_id'";
@@ -40,7 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Success message
     $_SESSION['successMsg'] = "Comment updated successfully.";
     header("location: ./mentorRequest.php");
     exit();

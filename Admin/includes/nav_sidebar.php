@@ -1,6 +1,10 @@
 <?php
 
 $activePage = isset($_SESSION['activePage']) ? $_SESSION['activePage'] : '';
+if (!isset($_SESSION['adminID'])) {
+    header('location: ../index.php');
+    exit();
+}
 ?>
 
     <section id='sidebar'>

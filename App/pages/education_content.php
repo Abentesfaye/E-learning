@@ -1,45 +1,71 @@
 <?php
 session_start();
+if (!isset($_SESSION['userID'])){
+    header('Location:  ../index.html');
+}
+require_once '../includes/header.php'; 
 include("../includes/conn.php");
-if (!isset($_SESSION['adminID'])) {
-    header('location: ../index.php');
-    exit();
+include("../includes/notification.php");
+
+// Check if there is an error message in the session
+if (isset($_SESSION['errorMsg'])) {
+    $errorMsg = $_SESSION['errorMsg'];
+    showNotification($errorMsg);
+    // Clear the error message from the session to prevent displaying it multiple times
+    unset($_SESSION['errorMsg']);
 }
-if (!isset($_GET['course_id']) || !isset($_GET['mentor_id'])) {
+if (isset($_SESSION['successMsg'])) {
+    $successMsg = $_SESSION['successMsg'];
+    showgoodNotification($successMsg);
+    // Clear the error message from the session to prevent displaying it multiple times
+    unset($_SESSION['successMsg']);
+}
+if (!isset($_SESSION['userID'])) {
+    $_SESSION['errorMsg'] = "You are not logged in.";
+    exit;
+}
+if (!isset($_GET['course_id'])) {
     $_SESSION['errorMsg'] = "Invalid request. Please select a course request.";
-    header("location: ./mentorRequest.php");
+    header("location: ./Enrolled.php");
     exit();
 }
 
+if (isset($_GET['course_id']) && is_numeric($_GET['course_id'])) {
+    $courseId = $_GET['course_id'];
 
-$courseId = $_GET['course_id'];
-$mentorId = $_GET['mentor_id'];
-$status = "reviewing";
-$queryUpdateStatus = "UPDATE assignedcourse SET status = ? WHERE course_id = ? AND mentor_id = ?";
-$stmtUpdateStatus = $conn->prepare($queryUpdateStatus);
-$stmtUpdateStatus->bind_param("sii", $status, $courseId, $mentorId);
-$stmtUpdateStatus->execute();
-$stmtUpdateStatus->close();
+    $queryCourse = "SELECT c.course_name, c.class_id, cl.class_name, cl.department_id, cc.cover, ac.mentor_id
+                    FROM course c
+                    INNER JOIN class cl ON c.class_id = cl.id
+                    LEFT JOIN coursecover cc ON c.id = cc.course_id
+                    LEFT JOIN assignedcourse ac ON c.id = ac.course_id
+                    WHERE c.id = ?";
+    $stmtCourse = $conn->prepare($queryCourse);
+    $stmtCourse->bind_param("i", $courseId);
+    $stmtCourse->execute();
+    $resultCourse = $stmtCourse->get_result();
 
-$queryCourse = "SELECT c.course_name, c.class_id, cl.class_name, cl.department_id, cc.cover
-                FROM course c
-                INNER JOIN class cl ON c.class_id = cl.id
-                LEFT JOIN coursecover cc ON c.id = cc.course_id
-                WHERE c.id = ?";
-$stmtCourse = $conn->prepare($queryCourse);
-$stmtCourse->bind_param("i", $courseId);
-$stmtCourse->execute();
-$stmtCourse->store_result();
 
-if ($stmtCourse->num_rows > 0) {
-    $stmtCourse->bind_result($courseName, $class_id, $className, $dpt_id, $coverImage);
-    $stmtCourse->fetch();
+    if ($resultCourse->num_rows > 0) {
+  
+        $row = $resultCourse->fetch_assoc();
+        $courseName = $row['course_name'];
+        $classId = $row['class_id'];
+        $className = $row['class_name'];
+        $dpt_id = $row['department_id'];
+        $coverImage = $row['cover'];
+        $mentorId = $row['mentor_id'];
+    } else {
+        $_SESSION['errorMsg'] = "No course found.";
+        header("Location: ../pages/Enrolled.php");
+        exit(); 
+    }
+    $stmtCourse->close();
+  
 } else {
-    $_SESSION['errorMsg'] = "No course found.";
-    header("location: ../pages/manageCourse.php?course_id=$courseId");
-    exit(); 
+    $_SESSION['errorMsg'] = "Invalid course ID.";
+    header("Location: ../pages/Enrolled.php");
+    exit();
 }
-$stmtCourse->close();
 
 
 $queryDepartment = "SELECT department_name FROM department WHERE id = ?";
@@ -53,7 +79,7 @@ if ($stmtDepartment->num_rows > 0) {
     $stmtDepartment->fetch();
 } else {
     $_SESSION['errorMsg'] = "No department found.";
-    header("location: ../pages/manageCourse.php?course_id=$courseId");
+    header("location: ../pages/Enrolled.php");
     exit(); 
 }
 $stmtDepartment->close();
@@ -69,7 +95,7 @@ if ($stmtMentor->num_rows > 0) {
     $stmtMentor->fetch();
 } else {
     $_SESSION['errorMsg'] = "No mentor found.";
-    header("location: ../pages/manageCourse.php?course_id=$courseId");
+    header("location: ../pages/Enrolled.php");
     exit(); 
 }
 $stmtMentor->close();
@@ -114,9 +140,6 @@ while ($row = $resultContent->fetch_assoc()) {
 }
 $stmtContent->close();
 
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -125,7 +148,7 @@ $stmtContent->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Details</title>
- 
+    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../font.css">
     <style>
@@ -157,8 +180,8 @@ $stmtContent->close();
         }
         .note-container {
     background-color: #f8f9fa; 
-    border: 1px solid #ced4da;
-    border-radius: 5px; 
+    border: 1px solid #ced4da; 
+    border-radius: 5px;
     padding: 10px;
     margin-top: 10px; 
 }
@@ -173,7 +196,9 @@ $stmtContent->close();
     </style>
 </head>
 <body>
-
+ 
+ <!-- Add the notification element -->
+ <div id="notificationtext" class="notificationtext"></div>  
 <div class="banner">
     <img src="<?php echo $coverImage; ?>" class="img-fluid" alt="Course Cover Image">
     <div class="content">
@@ -254,53 +279,7 @@ $stmtContent->close();
         <?php endforeach; ?>
     </div>
 </div>
-<div class="container">
-    <div class="row">
-        <div class="col-md-12 mt-5">
-        <button class="btn btn-success">
-    <a target="_blank" href="aprove.php?course_id=<?php echo $courseId; ?>&mentor_id=<?php echo $mentorId; ?>" class="text-white">Approve</a>
-</button>
 
-<button class="btn btn-danger">
-    <a target="_blank" href="reject.php?course_id=<?php echo $courseId; ?>&mentor_id=<?php echo $mentorId; ?>" class="text-white">Reject</a>
-</button>
-
-
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#commentModal">
-    Comment
-</button>
-
-<!-- Modal -->
-<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="commentModalLabel">Add Comment</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="comment.php" method="POST">
-                    <div class="form-group">
-                        <label for="comment">Your Comment:</label>
-                        <input type="text" class="form-control" id="comment" name="comment" required>
-                    </div>
-                    <!-- Hidden input fields to pass course_id and mentor_id -->
-                    <input type="hidden" name="course_id" value="<?php echo $courseId; ?>">
-                    <input type="hidden" name="mentor_id" value="<?php echo $mentorId; ?>">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-        </div>
-    </div>
-</div>
-<!-- Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 

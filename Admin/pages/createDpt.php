@@ -27,7 +27,7 @@ if (!isset($_SESSION['adminID'])) {
 <html lang="en">
 <head>
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-    <!-- Include Bootstrap CSS -->
+    
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../font.css">
     <link rel="stylesheet" href="../css/style.css">
@@ -52,7 +52,7 @@ if (!isset($_SESSION['adminID'])) {
     </section>  
     <div id="notificationtext" class="notificationtext"></div>   
 </body>
-<!-- Include Bootstrap JS -->
+
 <script src="../../bootstrap/js/jquery.slim.min.js"></script>
 <script src="../../bootstrap/js/popper.min.js"></script>
 <script src="../../bootstrap/js/bootstrap.min.js"></script>

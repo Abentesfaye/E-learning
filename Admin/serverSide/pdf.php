@@ -41,7 +41,7 @@ if ($resultCourse->num_rows > 0) {
     $pdf->AddPage();
 
     // Set font
-    $pdf->SetFont('helvetica', '', 10); // Using smaller size Helvetica font
+    $pdf->SetFont('helvetica', '', 10); 
 
     // Generate PDF content
     $html = '

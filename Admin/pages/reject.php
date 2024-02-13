@@ -38,7 +38,7 @@ if (!$resultCourseRequest) {
 // Success message
 $_SESSION['successMsg'] = "Course request rejected successfully.";
 
-// Redirect to mentorRequest.php or any other appropriate page
+
 header("location: ./mentorRequest.php");
 exit();
 ?>

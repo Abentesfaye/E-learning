@@ -5,7 +5,7 @@
 if (isset($_GET['class_id'])) {
     $classId = $_GET['class_id'];
 
-    // Include database connection code
+  
     include("../includes/conn.php");
 
     // Prepare SQL query to fetch courses based on the class ID
@@ -23,7 +23,7 @@ if (isset($_GET['class_id'])) {
 
     echo json_encode($courseData);
 
-    // Close database connections
+  
     $coursesStmt->close();
     $conn->close();
 } else {

@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["errorMsg"] = $errorMsg;
         header("location: ../pages/createCourseOutline.php?course_id=$courseId");
         
-        exit; // Ensure no further PHP code is executed after the redirect
+        exit; 
     } else {
         // Check if chapter name already exists for the course
         $queryCheckChapterName = "SELECT * FROM chapters WHERE course_id = ? AND chapter_name = ?";
@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION["errorMsg"] = $errorMsg;
             header("location: ../pages/createCourseOutline.php?course_id=$courseId");
            
-            exit; // Ensure no further PHP code is executed after the redirect
+            exit; 
         } else {
             // Insert new chapter
             $queryInsertChapter = "INSERT INTO chapters (course_id, chapter_number, chapter_name, description) VALUES (?, ?, ?, ?)";
@@ -47,13 +47,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["successMsg"] = $successMsg;
                 header("location: ../pages/createCourseOutline.php?course_id=$courseId");
                
-                exit; // Ensure no further PHP code is executed after the redirect
+                exit; 
             } else {
                 $errorMsg = "Error creating chapter.";
                 $_SESSION["errorMsg"] = $errorMsg;
                 header("location: ../pages/createCourseOutline.php?course_id=$courseId");
                 echo '<script>window.location.reload();</script>';
-                exit; // Ensure no further PHP code is executed after the redirect
+                exit; 
             }
         }
     }

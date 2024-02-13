@@ -2,8 +2,8 @@
 include("../includes/conn.php"); 
 include("../includes/notification.php");
 
-session_start(); // Ensure session is started
-// Set the active page variable
+session_start(); 
+
  $activePage = "manageMentor";
  $secondPage= "mentorRequest";
 $_SESSION['activePage'] = $activePage;

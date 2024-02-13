@@ -71,7 +71,7 @@ if (isset($_SESSION['successMsg'])) {
                                 <td><?php echo $row['department_name']; ?></td>
                                 <td><?php echo $row['class_name']; ?></td>
                                 <td>
-                                    <!-- Action icons with hover effect -->
+                                 
                                     <a href="#" title="Update Course" data-toggle="tooltip" data-placement="top" data-original-title="Edit">
                                         <i class="bx bxs-edit"></i>
                                     </a>
@@ -99,7 +99,7 @@ if (isset($_SESSION['successMsg'])) {
         <script src="../js/fetchClass.js"></script>
 
         <script>
-            // Add this script to handle the delete confirmation
+         
             $(document).ready(function () {
                 // Show delete modal when the delete icon is clicked
                 $('body').on('click', '.delete-course', function () {

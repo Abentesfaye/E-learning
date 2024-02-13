@@ -20,11 +20,10 @@ if (isset($_SESSION['successMsg'])) {
 if (!isset($_SESSION['adminID'])) {
     header('location: ../index.php');
 }
-// Fetch departments from the database
+
 $departmentsQuery = "SELECT id, department_name FROM department";
 $departmentsResult = $conn->query($departmentsQuery);
 
-// Close the database connection
 $conn->close();
 ?>
 
@@ -34,7 +33,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Class</title>
-    <!-- Include Bootstrap CSS -->
+  
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../font.css">
@@ -44,7 +43,7 @@ $conn->close();
 
     <?php include("../includes/nav_sidebar.php"); ?>
 
-    <!-- MAIN -->
+    
     <main>
     <?php include("../includes/pageHeader.php"); ?>
         <div class="container mt-5">
@@ -55,7 +54,7 @@ $conn->close();
                     <select class="form-select" id="department" name="department" required>
                         <option value="" disabled selected>Select Department</option>
                         <?php
-                        // Populate department options from the database
+                        
                         while ($row = $departmentsResult->fetch_assoc()) {
                             echo "<option value='{$row['id']}'>{$row['department_name']}</option>";
                         }
@@ -73,7 +72,7 @@ $conn->close();
     </main>
 <section>
 <div id="notificationtext" class="notificationtext"></div> 
-    <!-- Include Bootstrap JS -->
+
     <script src="../../bootstrap/js/jquery.slim.min.js"></script>
     <script src="../../bootstrap/js/popper.min.js"></script>
     <script src="../../bootstrap/js/bootstrap.min.js"></script>

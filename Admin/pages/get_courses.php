@@ -1,5 +1,5 @@
 <?php
-// Include database connection and necessary queries
+
 include("../includes/conn.php");
 
 if (isset($_POST['class_id'])) {
@@ -17,6 +17,6 @@ if (isset($_POST['class_id'])) {
     echo $options;
 }
 
-// Close the database connection
+
 $conn->close();
 ?>

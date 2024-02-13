@@ -1,24 +1,22 @@
 <?php
-// Include necessary files and start the session
+
 include("../includes/conn.php");
 include("../includes/notification.php");
 session_start(); 
 
-// Initialize $courseId variable
 $courseId = null;
 
-// Check if course_id is set in the URL
 if (isset($_GET['course_id'])) {
-    // Assign the course_id value to $courseId
+    
     $courseId = $_GET['course_id'];
 } else {
-    // Handle case where course_id is not set in the URL
+   
     $_SESSION["errorMsg"] = "Course not Found";
     header("location: manageCourse.php");
-    exit(); // Stop further execution
+    exit(); 
 }
 
-// Check if error or success message exists in session and display them
+
 if (isset($_SESSION['errorMsg'])) {
     $errorMsg = $_SESSION['errorMsg'];
     showNotification($errorMsg);
@@ -85,7 +83,7 @@ $resultChapters = $stmtChapters->get_result();
 <html lang="en">
 <head>
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-    <!-- Include Bootstrap CSS -->
+
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../font.css">
     <link rel="stylesheet" href="../css/style.css">
