@@ -1,7 +1,7 @@
 # E-Learning Platform for Hachalu Hundesa Secondary School
 
 ## Introduction
-The E-Learning Platform for Hashalu Hundesa Secondary School is a comprehensive digital solution designed to enhance the educational experience of students by providing them with access to online courses, resources, and collaboration tools. Developed as part of a semester project for the Computer Science program at Mettu University, this platform aims to revolutionize the traditional classroom setting and bring education into the digital age.
+The E-Learning Platform for Hachalu Hundesa Secondary School is a comprehensive digital solution designed to enhance the educational experience of students by providing them with access to online courses, resources, and collaboration tools. Developed as part of a semester project for the Computer Science program at Mettu University, this platform aims to revolutionize the traditional classroom setting and bring education into the digital age.
 
 ## Features
 
@@ -26,13 +26,23 @@ The E-Learning Platform for Hashalu Hundesa Secondary School is a comprehensive 
 
 ## Development Team
 The platform is developed by a dedicated team of Computer Science students from Mettu University:
-- **<a href="https://github.com/Abentesfaye">Abenezer Tesfaye</a>**
-- **<a href="https://github.com/henok-aklilu">Henok Aklilu</a>**
+- **[Abenezer Tesfaye](https://github.com/Abentesfaye)**
+- **[Henok Aklilu](https://github.com/henok-aklilu)**
 - **Jiregna Firdisa**
 - **Tamirat Tafese**
 
+## Screenshots
+### Administrator Dashboard
+![Administrator Dashboard](admin_dashboard.png)
+
+### Course Creation Interface
+![Course Creation](course_creation.png)
+
+### Student Dashboard
+![Student Dashboard](student_dashboard.png)
+
 ## Submission
-The E-Learning Platform for Hashalu Hundesa Secondary School is submitted to Mr. Amensisa Embabo, the head of the Computer Science department at Mettu University, as part of the semester project. The submission date is February 2024.
+The E-Learning Platform for Hachalu Hundesa Secondary School is submitted to Mr. Amensisa Embabo, the head of the Computer Science department at Mettu University, as part of the semester project. The submission date is February 2024.
 
 ## Conclusion
-This platform serves as a valuable tool in modernizing the educational experience at Hashalu Hundesa Secondary School, empowering students and mentors alike to engage in a dynamic and collaborative learning environment. With its user-friendly interface and robust features, it aims to promote lifelong learning and academic excellence.
+This platform serves as a valuable tool in modernizing the educational experience at Hachalu Hundesa Secondary School, empowering students and mentors alike to engage in a dynamic and collaborative learning environment. With its user-friendly interface and robust features, it aims to promote lifelong learning and academic excellence.
