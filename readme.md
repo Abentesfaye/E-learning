@@ -1,4 +1,4 @@
-# E-Learning Platform for Hashalu Hundesa Secondary School
+# E-Learning Platform for Hachalu Hundesa Secondary School
 
 ## Introduction
 The E-Learning Platform for Hashalu Hundesa Secondary School is a comprehensive digital solution designed to enhance the educational experience of students by providing them with access to online courses, resources, and collaboration tools. Developed as part of a semester project for the Computer Science program at Mettu University, this platform aims to revolutionize the traditional classroom setting and bring education into the digital age.
