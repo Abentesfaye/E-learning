@@ -1,4 +1,5 @@
 # E-Learning Platform for Hachalu Hundesa Secondary School
+![12](https://github.com/Abentesfaye/E-learning/assets/105986912/f7cb7301-2724-4ff2-be15-e7beb8a75954)
 
 ## Introduction
 The E-Learning Platform for Hachalu Hundesa Secondary School is a comprehensive digital solution designed to enhance the educational experience of students by providing them with access to online courses, resources, and collaboration tools. Developed as part of a semester project for the Computer Science program at Mettu University, this platform aims to revolutionize the traditional classroom setting and bring education into the digital age.
@@ -33,13 +34,21 @@ The platform is developed by a dedicated team of Computer Science students from 
 
 ## Screenshots
 ### Administrator Dashboard
-![Administrator Dashboard](admin_dashboard.png)
+![admin](https://github.com/Abentesfaye/E-learning/assets/105986912/c83aee89-7731-41f8-9ada-abfff46dc301)
 
-### Course Creation Interface
-![Course Creation](course_creation.png)
+![admin1](https://github.com/Abentesfaye/E-learning/assets/105986912/d3f377f3-98ae-448d-a705-a417da56e106)
+
+### Mentor
+Mne![Capture](https://github.com/Abentesfaye/E-learning/assets/105986912/52923d9d-6c5b-4f53-84c4-52fc13758e37)
+tor![menrt](https://github.com/Abentesfaye/E-learning/assets/105986912/f2b1adcc-13bb-4d23-90df-6224a41a0ccf)
+![ment1](https://github.com/Abentesfaye/E-learning/assets/105986912/8d5312df-4828-4a3b-b5d8-d5f4f98ef4fd)
+
 
 ### Student Dashboard
-![Student Dashboard](student_dashboard.png)
+![Captures](https://github.com/Abentesfaye/E-learning/assets/105986912/1a08d385-7829-44b8-b35d-b0e13b9ac6d7)
+![Captures](https://github.com/Abentesfaye/E-learning/assets/105986912/139f30b2-da9e-4a2e-aabf-6db728f08b62)
+![fgn](https://github.com/Abentesfaye/E-learning/assets/105986912/c6f775f1-8e90-4184-b0ad-f32226ccc4df)
+![Capturess](https://github.com/Abentesfaye/E-learning/assets/105986912/957658c5-96fd-45b8-b1b8-39e1386cdd3d)
 
 ## Submission
 The E-Learning Platform for Hachalu Hundesa Secondary School is submitted to Mr. Amensisa Embabo, the head of the Computer Science department at Mettu University, as part of the semester project. The submission date is February 2024.
